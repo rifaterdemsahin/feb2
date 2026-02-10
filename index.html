@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Analysis: Color-Coded with Structure</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .legend-item {
+            padding: 12px;
+            border-left: 4px solid;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+        .legend-item.blue { border-color: #3498db; background: #ecf0f6; }
+        .legend-item.green { border-color: #27ae60; background: #eafcf1; }
+        .legend-item.red { border-color: #e74c3c; background: #fadbd8; }
+        .legend-item.yellow { border-color: #f39c12; background: #fef5e7; }
+        .legend-item.gray { border-color: #95a5a6; background: #ecf0f1; }
+        
+        .legend-label { font-weight: bold; color: #2c3e50; margin-bottom: 4px; }
+        .legend-desc { font-size: 0.9em; color: #555; }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 30px 0 20px 0;
+            border-left: 5px solid #667eea;
+            border-radius: 4px;
+        }
+        .section-header h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+        .section-header .meta {
+            color: #7f8c8d;
+            font-size: 0.95em;
+        }
+
+        .scene-block {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 5px solid;
+        }
+        .scene-block.memory-palace { border-color: #3498db; background: #ecf0f6; }
+        .scene-block.aroll { border-color: #27ae60; background: #eafcf1; }
+        .scene-block.screen-capture { border-color: #e74c3c; background: #fadbd8; }
+        .scene-block.chapter { border-color: #f39c12; background: #fef5e7; }
+        .scene-block.structural { border-color: #95a5a6; background: #ecf0f1; }
+
+        .scene-header {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .scene-content {
+            line-height: 1.6;
+            color: #34495e;
+            font-size: 0.95em;
+        }
+        .timestamp {
+            display: inline-block;
+            background: rgba(255,255,255,0.7);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-left: 10px;
+        }
+        
+        .marker {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .marker.blue { background: #3498db; color: white; }
+        .marker.green { background: #27ae60; color: white; }
+        .marker.red { background: #e74c3c; color: white; }
+        .marker.yellow { background: #f39c12; color: white; }
+
+        .structural-info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #95a5a6;
+        }
+        .structural-info strong { color: #2c3e50; }
+
+        .problem-area {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .problem-area strong { color: #856404; }
+
+        .hook-problem {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .hook-problem strong { color: #721c24; }
+
+        .stage-label {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .act-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        .act-title {
+            font-size: 1.6em;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .timeline {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .export-buttons {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 2px solid #e0e0e0;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+
+        .summary-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Script Analysis: Color-Coded Structure</h1>
+            <p>Delivery Pilot Training Program - Full Script Breakdown</p>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item blue">
+                <div class="legend-label">🧠 BLUE - Memory Palace</div>
+                <div class="legend-desc">Conceptual/metaphorical spaces, internal monologue, philosophical exploration</div>
+            </div>
+            <div class="legend-item green">
+                <div class="legend-label">🎥 GREEN - A-Roll Background</div>
+                <div class="legend-desc">Visual descriptions, cinematic settings, world-building, environmental context</div>
+            </div>
+            <div class="legend-item red">
+                <div class="legend-label">💻 RED - Screen Capture</div>
+                <div class="legend-desc">Terminal, code, technical demos, UI interfaces, practical implementation</div>
+            </div>
+            <div class="legend-item yellow">
+                <div class="legend-label">⭐ YELLOW - Chapter Markers</div>
+                <div class="legend-desc">Major transitions, scene breaks, act divisions, key story beats</div>
+            </div>
+            <div class="legend-item gray">
+                <div class="legend-label">📍 GRAY - Structural Elements</div>
+                <div class="legend-desc">Act divisions, stage notes, narrative structure</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- HOOK / OPENING PROBLEM -->
+            <div class="section-header">
+                <h2>⚠️ THE HOOK: Problem Setup</h2>
+                <div class="meta">Opening Scene - Establishing the Conflict</div>
+            </div>
+
+            <div class="hook-problem">
+                <strong>IDENTIFIED PROBLEM:</strong>
+                <p>The host is holding a golden microphone that's too heavy to carry. People around them are struggling, but the host is talking about engineering concepts - disconnected from human suffering. <strong>The problem:</strong> Knowledge without empathy. Complexity without accessibility. Speaking over people instead of with them.</p>
+            </div>
+
+            <div class="scene-block memory-palace">
+                <div class="scene-header">
+                    <span class="marker blue">BLUE</span>
+                    Scene: The Paradox of Knowledge
+                    <span class="timestamp">00:00:00 - 00:00:30</span>
+                </div>
+                <div class="scene-content">
+                    Host holding massive golden microphone (metaphor: burden of expertise). People suffering nearby (disconnected humanity). Talking about engineering concepts (detachment from real needs). "I'm just scaring people off" - realization of the problem.
+                </div>
+            </div>
+
+            <div class="scene-block chapter">
+                <div class="scene-header">
+                    <span class="marker yellow">YELLOW</span>
+                    CHAPTER MARKER: The Pivot Point
+                    <span class="timestamp">00:00:30</span>
+                </div>
+                <div class="scene-content">
+                    Last week decision made: pivot from complex engineering to no-code, no-technical-background solutions.
+                </div>
+            </div>
+
+            <!-- ACT I -->
+            <div class="act-section">
+                <div class="act-title">ACT I: THE CRISIS & THE PROMISE (00:00:30 - 00:15:00)</div>
+                <div class="meta timeline">Duration: ~15 minutes | Theme: Problem Identification & Solution Introduction</div>
+
+                <div class="structural-info">
+                    <strong>Act I Structure:</strong><br>
+                    - EXPOSITION: Host's realization of the problem<br>
+                    - RISING ACTION: Stories of those left behind (war refugee example)<br>
+                    - CLIMAX: The vision - empowering everyone with AI tools<br>
+                    - RESOLUTION: Introducing "Delivery Pilot" as the solution
+                </div>
+
+                <!-- Scene 1: The War Refugee -->
+                <div class="scene-block blue">
+                    <div class="scene-header">
+                        <span class="marker blue">BLUE</span>
+                        Scene 1: The Glass Box (Metaphor for Powerlessness)
+                        <span class="timestamp">00:00:45 - 00:01:30</span>
+                    </div>
+                    <div class="scene-content">
+                        "Think about this like a giant glass... she's outside and there's no code tools for her to survive this billion dollar war." A friend who escaped war, trapped outside systems, no tools to help herself. <strong>Problem personified:</strong> Lack of accessible tools = lack of power = trapped in suffering.
+                    </div>
+                </div>
+
+                <!-- Scene 2: Enterprise Resistance -->
+                <div class="scene-block blue">
+                    <div class="scene-header">
+                        <span class="marker blue">BLUE</span>
+                        Scene 2: The Zombie Snails (Resistance to Change)
+                        <span class="timestamp">00:01:35 - 00:02:15</span>
+                    </div>
+                    <div class="scene-content">
+                        "They are moving like zombie snails in a 10 year race... massive resistance, but we are closing the gap." Large enterprises slow, resistant to AI transformation. Static rules. Hard-coded systems that break easily.
+                    </div>
+                </div>
+
+                <div class="stage-label">STAGE: Problem Establishment</div>
+
+                <!-- Scene 3: The Vision -->
+                <div class="scene-block memory-palace">
+                    <div class="scene-header">
+                        <span class="marker blue">BLUE</span>
+                        Scene 3: The Vision of Empowerment
+                        <span class="timestamp">00:02:15 - 00:03:30</span>
+                    </div>
+                    <div class="scene-content">
+                        "I want everybody to be able to use the simulations, do their checklist, clone the repos, fork them and create their bespoke applications using the AI." The solution: democratize power through tools. Everyone becomes a creator. Dynamic rules (liquid mercury) instead of static rules (stone statues).
+                    </div>
+                </div>
+
+                <div class="stage-label">STAGE: Solution Introduction</div>
+
+            </div>
+
+            <!-- ACT II -->
+            <div class="act-section">
+                <div class="act-title">ACT II: THE DEMONSTRATION & THE JOURNEY (00:15:00 - 01:00:00)</div>
+                <div class="meta timeline">Duration: ~45 minutes | Theme: Practical Implementation, Tools, Learning Path</div>
+
+                <div class="structural-info">
+                    <strong>Act II Structure:</strong><br>
+                    - EXPOSITION: Introduction to Delivery Pilot template<br>
+                    - RISING ACTION: Step-by-step technical demonstrations<br>
+                    - CLIMAX: Multiple pathways shown (free tier, paid tools, local setup)<br>
+                    - MIDPOINT: Shift from "what" to "how" - showing the journey
+                </div>
+
+                <!-- Scene 4: The Clone Lab -->
+                <div class="scene-block chapter">
+                    <div class="scene-header">
+                        <span class="marker yellow">YELLOW</span>
+                        CHAPTER MARKER: The Clone Lab
+                        <span class="timestamp">00:03:30</span>
+                    </div>
+                    <div class="scene-content">
+                        Major scene transition to technical demonstration space.
+                    </div>
+                </div>
+
+                <div class="scene-block green">
+                    <div class="scene-header">
+                        <span class="marker green">GREEN</span>
+                        Scene 4: The 3D Printing Machine
+                        <span class="timestamp">00:03:40 - 00:04:30</span>
+                    </div>
+                    <div class="scene-content">
+                        "A machine that is 3D printing in an identical copy of the host. The foundation is the reusable delivery pilot." Visual metaphor: Creating clones. Replication as empowerment. "I'm creating the repositories, I'm cloning myself and you learn how to clone yourself in the future."
+                    </div>
+                </div>
+
+                <div class="stage-label">STAGE: Methodology Introduction</div>
+
+                <!-- RED SECTION: Technical Demo -->
+                <div class="scene-block red">
+                    <div class="scene-header">
+                        <span class="marker red">RED</span>
+                        Scene 5: Git Clone Terminal Demo
+                        <span class="timestamp">00:04:45 - 00:10:00</span>
+                    </div>
+                    <div class="scene-content">
+                        <strong>TECHNICAL DEMONSTRATION:</strong><br>
+                        Step 1: Clone repository to empty folder<br>
+                        Step 2: Use agent to execute commands<br>
+                        Step 3: Configure tooling system<br>
+                        Standard tool (free tier) vs Premium tools (GitHub Co-pilot, Cursor AI)<br>
+                        Visual Studio + GitHub for free. JetBrains for advanced features.
+                    </div>
+                </div>
+
+                <div class="stage-label">STAGE: Tool Selection</div>
+
+                <!-- The Evolution -->
+                <div class="scene-block blue">
+                    <div class="scene-header">
+                        <span class="marker blue">BLUE</span>
+                        Scene 6: The Evolution of Tools
+                        <span class="timestamp">00:10:15 - 00:10:45</span>
+                    </div>
+                    <div class="scene-content">
+                        "Think about this like an evolution. I use three of them and I will be able to swap between each other." Tools as progression. Not locked into one path. Flexibility and choice.
+                    </div>
+                </div>
+
+                <!-- RED: More Demonstrations -->
+                <div class="scene-block red">
+                    <div class="scene-header">
+                        <span class="marker red">RED</span>
+                        Scene 7: Building & Cloning Process
+                        <span class="timestamp">00:10:50 - 00:15:30</span>
+                    </div>
+                    <div class="scene-content">
+                        <strong>TERMINAL DEMONSTRATIONS:</strong><br>
+                        - Creating repositories<br>
+                        - Cloning applications<br>
+                        - Deploying environments<br>
+                        "By being able to learn how to clone yourself, you are going to learn the fundamentals."
+                    </div>
+                </div>
+
+                <div class="stage-label">STAGE: Hands-On Learning</div>
+
+                <!-- Midpoint -->
+                <div class="scene-block chapter">
+                    <div class="scene-header">
+                        <span class="marker yellow">YELLOW</span>
+                        CHAPTER MARKER: Shift from Theory to Practice
+                        <span class="timestamp">00:15:30</span>
+                    </div>
+                    <div class="scene-content">
+                        Transition from "what is this" to "how do you actually do it"
+                    </div>
+                </div>
+
+                <!-- Extended Act II sections follow similar pattern... -->
+                <div class="problem-area">
+                    <strong>⚠️ SCENE NAMING CHALLENGE:</strong> The middle section (00:15:00 - 01:00:00) contains many overlapping demonstrations and tool discussions without clear scene breaks or titles. Recommend adding chapter markers for:<br>
+                    - The Cost Analysis Scene<br>
+                    - The Free vs Paid Tools Comparison<br>
+                    - The Cloud & Local Setup Options<br>
+                    - The Security & Privacy Considerations
+                </div>
+
+            </div>
+
+            <!-- ACT III -->
+            <div class="act-section">
+                <div class="act-title">ACT III: THE EXECUTION & THE FUTURE (01:00:00 - FINALE)</div>
+                <div class="meta timeline">Duration: ~20+ minutes | Theme: Implementation, Simulations, Becoming a Delivery Pilot</div>
+
+                <div class="structural-info">
+                    <strong>Act III Structure:</strong><br>
+                    - EXPOSITION: Assessment framework<br>
+                    - RISING ACTION: Simulation process with checklists<br>
+                    - CLIMAX: Running the application, deploying to multiple devices<br>
+                    - RESOLUTION: Future vision - building your own solutions
+                </div>
+
+                <!-- Scene: The Balcony -->
+                <div class="scene-block chapter">
+                    <div class="scene-header">
+                        <span class="marker yellow">YELLOW</span>
+                        CHAPTER MARKER: The Balcony Scene (Vision of the Future)
+                        <span class="timestamp">01:20:25</span>
+                    </div>
+                    <div class="scene-content">
+                        Transition to final act
+                    </div>
+                </div>
+
+                <div class="scene-block green">
+                    <div class="scene-header">
+                        <span class="marker green">GREEN</span>
+                        Scene: The Futuristic City
+                        <span class="timestamp">01:20:30 - 01:21:00</span>
+                    </div>
+                    <div class="scene-content">
+                        "Host looking out over the futuristic city being built by the drones using the simulations." Visual metaphor: The future is being built NOW. Not something distant. Something you create with available tools.
+                    </div>
+                </div>
+
+                <div class="stage-label">STAGE: Vision & Transformation</div>
+
+                <!-- The Simulation Process -->
+                <div class="scene-block blue">
+                    <div class="scene-header">
+                        <span class="marker blue">BLUE</span>
+                        Scene: The Assessment & Simulation Journey
+                        <span class="timestamp">01:21:05 - 01:22:00</span>
+                    </div>
+                    <div class="scene-content">
+                        "Every simulation starts with the assessment." The framework: Test → Learn → Execute. Checklists for network, authentication, profile, resources. Video-based learning with parallel checklist completion.
+                    </div>
+                </div>
+
+                <!-- RED: Deployment Demo -->
+                <div class="scene-block red">
+                    <div class="scene-header">
+                        <span class="marker red">RED</span>
+                        Scene: Multi-Environment Deployment
+                        <span class="timestamp">01:22:05 - 01:23:00</span>
+                    </div>
+                    <div class="scene-content">
+                        <strong>DEPLOYMENT DEMONSTRATIONS:</strong><br>
+                        - Windows, iOS, Android environments<br>
+                        - Code spaces<br>
+                        - Mesh of connected devices<br>
+                        - Dashboard deployment with GitHub Actions<br>
+                        - Event streams & audit trails
+                    </div>
+                </div>
+
+                <div class="stage-label">STAGE: Technical Execution</div>
+
+                <!-- Success Metrics -->
+                <div class="scene-block blue">
+                    <div class="scene-header">
+                        <span class="marker blue">BLUE</span>
+                        Scene: Defining Success
+                        <span class="timestamp">01:23:30 - 01:24:00</span>
+                    </div>
+                    <div class="scene-content">
+                        Success metrics: Compliance, accuracy, learning through process. "This is the vital stage for you to be able to turn..." - transformation from user to creator. Real-world application with kids aged 3-9, adapting to changing requirements.
+                    </div>
+                </div>
+
+                <!-- Final Vision -->
+                <div class="scene-block memory-palace">
+                    <div class="scene-header">
+                        <span class="marker blue">BLUE</span>
+                        Scene: The Final Call to Action
+                        <span class="timestamp">01:24:00 - Finale</span>
+                    </div>
+                    <div class="scene-content">
+                        "Build the future with me." The journey: Clone repo → Configure → Create environment → Deploy → Iterate → Become a Delivery Pilot. Everyone can be a creator. Not just users of systems, but builders of solutions.
+                    </div>
+                </div>
+
+                <div class="stage-label">STAGE: Empowerment & Call to Action</div>
+
+            </div>
+
+            <!-- STRUCTURAL ANALYSIS -->
+            <div class="section-header">
+                <h2>📊 Structural Analysis: Three-Act Structure</h2>
+                <div class="meta">Story Arc Breakdown</div>
+            </div>
+
+            <div class="summary-box">
+                <strong>Complete Three-Act Structure:</strong><br><br>
+                <strong>ACT I: THE CRISIS (0:00 - 0:15)</strong><br>
+                Hook: Host with golden microphone (burden of knowledge)<br>
+                Problem: War refugee in glass box (powerlessness)<br>
+                Zombie snails (institutional resistance)<br>
+                Solution introduced: Delivery Pilot democratization<br><br>
+                
+                <strong>ACT II: THE JOURNEY (0:15 - 1:00)</strong><br>
+                Methodology: 3D printer metaphor (cloning)<br>
+                Tools showcase: Free vs Paid options<br>
+                Step-by-step demonstrations<br>
+                Tool evolution and flexibility<br>
+                **NEEDS CLEARER SCENE BREAKS**<br><br>
+                
+                <strong>ACT III: THE TRANSFORMATION (1:00 - END)</strong><br>
+                Assessment framework<br>
+                Simulation and deployment process<br>
+                Multi-environment execution<br>
+                Success metrics and real-world application<br>
+                Final vision: Building the future<br>
+                Call to action: "Build the future with me"
+            </div>
+
+            <!-- IDENTIFIED PROBLEMS -->
+            <div class="section-header">
+                <h2>⚠️ Identified Issues & Recommendations</h2>
+                <div class="meta">Areas Needing Clarification</div>
+            </div>
+
+            <div class="problem-area">
+                <strong>1. SCENE NAMING & BREAKS (Act II Issue)</strong><br>
+                The middle section (00:15:00 - 01:00:00) has overlapping demonstrations without clear scene boundaries. Currently runs:<br>
+                - Tool selection (free tier vs paid)<br>
+                - Cost analysis<br>
+                - GitHub/Visual Studio setup<br>
+                - Cursor AI introduction<br>
+                - Repository creation<br>
+                <br>
+                <strong>RECOMMENDATION:</strong> Add chapter markers every 5-10 minutes with distinct scene names like:<br>
+                "The Tool Market" | "The Free Path" | "The Professional Path" | "The Local Development Scene"
+            </div>
+
+            <div class="problem-area">
+                <strong>2. HOOK CLARITY</strong><br>
+                The hook (golden microphone) is powerful but abstract. The personal connection could be stronger. The war refugee example is more emotionally clear, but could come earlier to establish stakes more immediately.
+            </div>
+
+            <div class="problem-area">
+                <strong>3. STAGE TRANSITIONS</strong><br>
+                Some transitions between stages feel abrupt. "The Evolution of Tools" metaphor (00:10:15) could be expanded into its own scene to improve pacing.
+            </div>
+
+            <div class="hook-problem">
+                <strong>4. PROBLEM-CLIMAX GAP</strong><br>
+                The problem is established (war refugee, enterprise resistance) but the climactic moment of solving it could be more explicit. The moment when viewers realize "I can do this too" needs emphasis.
+            </div>
+
+            <!-- SUMMARY TABLE -->
+            <div class="section-header">
+                <h2>🎬 Quick Reference: Marker Distribution</h2>
+                <div class="meta">Scene Type Breakdown</div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr style="background: #f8f9fa;">
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Color</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Type</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Count</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Key Scenes</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 12px;"><span class="marker blue">BLUE</span></td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">Memory Palace / Philosophy</td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">8+</td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">Golden Microphone, Glass Box, Zombie Snails, Vision, Evolution</td>
+                </tr>
+                <tr style="background: #f8f9fa;">
+                    <td style="border: 1px solid #ddd; padding: 12px;"><span class="marker green">GREEN</span></td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">A-Roll / Visual</td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">5+</td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">3D Printer, Frozen Statues vs Mercury, Futuristic City</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 12px;"><span class="marker red">RED</span></td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">Screen Capture / Tech</td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">7+</td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">Git Clone, Tool Demos, Deployment, GitHub Actions</td>
+                </tr>
+                <tr style="background: #f8f9fa;">
+                    <td style="border: 1px solid #ddd; padding: 12px;"><span class="marker yellow">YELLOW</span></td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">Chapter Markers</td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">4-5</td>
+                    <td style="border: 1px solid #ddd; padding: 12px;">The Pivot, Clone Lab, Midpoint, Balcony, Finale</td>
+                </tr>
+            </table>
+
+        </div>
+
+        <div class="export-buttons">
+            <button onclick="exportToText()">📄 Export as Text</button>
+            <button onclick="printPage()">🖨️ Print Script</button>
+            <button onclick="copyToClipboard()">📋 Copy Analysis</button>
+        </div>
+    </div>
+
+    <script>
+        function exportToText() {
+            const text = document.body.innerText;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'script-analysis.txt';
+            a.click();
+        }
+
+        function printPage() {
+            window.print();
+        }
+
+        function copyToClipboard() {
+            const text = document.body.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Script analysis copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
