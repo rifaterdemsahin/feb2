@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Inventory - DaVinci Resolve Asset Map</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 20px;
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #0f0f23;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 50%, #2c3e50 100%);
+            color: white;
+            padding: 30px 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .header-icon { font-size: 2.5em; }
+        .header h1 { font-size: 1.8em; margin-bottom: 4px; }
+        .header p { opacity: 0.85; font-size: 0.95em; }
+
+        .top-nav {
+            background: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            flex-wrap: wrap;
+            border-bottom: 3px solid #34495e;
+        }
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            display: inline-block;
+            transition: all 0.3s;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+        }
+        .top-nav a:hover {
+            background: #34495e;
+            border-bottom: 3px solid #e74c3c;
+        }
+        .top-nav a.active {
+            background: #34495e;
+            border-bottom: 3px solid #e74c3c;
+        }
+
+        .nav-bar {
+            display: flex;
+            gap: 0;
+            background: #1a1a2e;
+            border-bottom: 2px solid #2a2a4a;
+            overflow-x: auto;
+        }
+        .nav-btn {
+            padding: 12px 20px;
+            background: transparent;
+            color: #8888aa;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { color: #e74c3c; background: rgba(231,76,60,0.05); }
+        .nav-btn.active { color: #e74c3c; border-bottom-color: #e74c3c; background: rgba(231,76,60,0.08); }
+
+        .tab-content { display: none; padding: 25px; }
+        .tab-content.active { display: block; }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #1e1e3a, #2a2a4a);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #3a3a5a;
+        }
+        .stat-card .num { font-size: 2em; font-weight: bold; color: #e74c3c; }
+        .stat-card .label { font-size: 0.8em; color: #8888aa; margin-top: 4px; }
+
+        /* Search */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .search-bar input {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: 1px solid #3a3a5a;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 0.95em;
+        }
+        .search-bar input::placeholder { color: #5a5a7a; }
+        .search-bar input:focus { outline: none; border-color: #e74c3c; }
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #3a3a5a;
+            background: #1a1a2e;
+            color: #8888aa;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover, .filter-btn.active { background: #e74c3c; color: white; border-color: #e74c3c; }
+
+        /* Inventory Table */
+        .inv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        .inv-table th {
+            background: #1a1a2e;
+            padding: 10px 12px;
+            text-align: left;
+            color: #e74c3c;
+            font-weight: 700;
+            border-bottom: 2px solid #e74c3c;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+        }
+        .inv-table th:hover { color: #ff6b6b; }
+        .inv-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #2a2a4a;
+            vertical-align: top;
+        }
+        .inv-table tr:hover { background: rgba(231,76,60,0.05); }
+        .file-path { color: #3498db; font-family: 'Consolas', monospace; font-size: 0.9em; word-break: break-all; }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin: 1px 2px;
+        }
+        .tag-video { background: #27ae60; color: white; }
+        .tag-audio { background: #2980b9; color: white; }
+        .tag-image { background: #8e44ad; color: white; }
+        .tag-doc { background: #d35400; color: white; }
+        .tag-subtitle { background: #f39c12; color: #222; }
+        .tag-data { background: #1abc9c; color: white; }
+        .priority-5 { color: #e74c3c; font-weight: bold; }
+        .priority-4 { color: #e67e22; font-weight: bold; }
+        .priority-3 { color: #f1c40f; }
+        .priority-2 { color: #3498db; }
+        .priority-1 { color: #95a5a6; }
+
+        /* 3-word tags for DaVinci */
+        .resolve-tag {
+            display: inline-block;
+            background: #2c3e50;
+            color: #1abc9c;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            margin: 2px;
+            border: 1px solid #1abc9c;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .resolve-tag:hover { background: #1abc9c; color: #0f0f23; }
+
+        /* Script Scene Map */
+        .scene-card {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .scene-card-header {
+            padding: 15px 20px;
+            font-weight: 700;
+            font-size: 1.1em;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .scene-card-header .arrow { transition: transform 0.2s; }
+        .scene-card-header.open .arrow { transform: rotate(90deg); }
+        .scene-1-hdr { background: linear-gradient(90deg, #e74c3c22, transparent); border-left: 4px solid #e74c3c; }
+        .scene-2-hdr { background: linear-gradient(90deg, #3498db22, transparent); border-left: 4px solid #3498db; }
+        .scene-3-hdr { background: linear-gradient(90deg, #9b59b622, transparent); border-left: 4px solid #9b59b6; }
+        .scene-4-hdr { background: linear-gradient(90deg, #27ae6022, transparent); border-left: 4px solid #27ae60; }
+        .scene-5-hdr { background: linear-gradient(90deg, #f39c1222, transparent); border-left: 4px solid #f39c12; }
+        .scene-6-hdr { background: linear-gradient(90deg, #e67e2222, transparent); border-left: 4px solid #e67e22; }
+        .scene-7-hdr { background: linear-gradient(90deg, #1abc9c22, transparent); border-left: 4px solid #1abc9c; }
+        .scene-8-hdr { background: linear-gradient(90deg, #2980b922, transparent); border-left: 4px solid #2980b9; }
+        .scene-9-hdr { background: linear-gradient(90deg, #c0392b22, transparent); border-left: 4px solid #c0392b; }
+        .scene-10-hdr { background: linear-gradient(90deg, #8e44ad22, transparent); border-left: 4px solid #8e44ad; }
+        .scene-card-body { padding: 15px 20px; display: none; }
+        .scene-card-body.open { display: block; }
+
+        .transcript-line {
+            padding: 10px 15px;
+            margin: 8px 0;
+            background: #0f0f23;
+            border-radius: 6px;
+            border-left: 3px solid #3a3a5a;
+            line-height: 1.6;
+        }
+        .transcript-line .text { color: #ccc; font-size: 0.92em; }
+        .transcript-line .tags-row { margin-top: 6px; }
+
+        .asset-list {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 8px;
+        }
+        .asset-item {
+            background: #0f0f23;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.82em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #2a2a4a;
+        }
+        .asset-item .type-icon { font-size: 1.1em; }
+
+        .back-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        .back-link:hover { background: #c0392b; }
+
+        .scroll-wrap {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .scroll-wrap::-webkit-scrollbar { width: 6px; }
+        .scroll-wrap::-webkit-scrollbar-track { background: #1a1a2e; }
+        .scroll-wrap::-webkit-scrollbar-thumb { background: #3a3a5a; border-radius: 3px; }
+
+        .copy-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1abc9c;
+            color: #0f0f23;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 700;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .copy-toast.show { opacity: 1; }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #e74c3c;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #2a2a4a;
+        }
+        .hint {
+            background: #1a1a2e;
+            border: 1px dashed #3a3a5a;
+            padding: 12px 18px;
+            border-radius: 6px;
+            color: #8888aa;
+            font-size: 0.88em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">🎬</div>
+            <div>
+                <h1>File Inventory &amp; DaVinci Resolve Asset Map</h1>
+                <p>3-word search tags for every asset | Script-to-file mapping | Click tags to copy</p>
+            </div>
+        </div>
+
+        <nav class="top-nav">
+            <a href="../index.html">🏠 Home</a>
+            <a href="postproduction_helper.html">🔍 Post-Production Helper</a>
+            <a href="video_editing_plan.html">📋 Video Editing Plan</a>
+            <a href="file_inventory.html" class="active">📁 File Inventory</a>
+        </nav>
+
+        <nav class="nav-bar">
+            <button class="nav-btn active" onclick="showTab('overview')">Overview</button>
+            <button class="nav-btn" onclick="showTab('inventory')">Full Inventory</button>
+            <button class="nav-btn" onclick="showTab('scriptmap')">Script &rarr; Asset Map</button>
+            <button class="nav-btn" onclick="showTab('resolvetags')">DaVinci Resolve Tags</button>
+        </nav>
+
+        <!-- TAB: OVERVIEW -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="stats-row">
+                <div class="stat-card"><div class="num" id="stat-total">0</div><div class="label">Total Files</div></div>
+                <div class="stat-card"><div class="num" id="stat-video">0</div><div class="label">Video</div></div>
+                <div class="stat-card"><div class="num" id="stat-audio">0</div><div class="label">Audio</div></div>
+                <div class="stat-card"><div class="num" id="stat-image">0</div><div class="label">Images</div></div>
+                <div class="stat-card"><div class="num" id="stat-doc">0</div><div class="label">Documents</div></div>
+                <div class="stat-card"><div class="num" id="stat-scenes">10</div><div class="label">Script Scenes</div></div>
+            </div>
+
+            <div class="hint">
+                <strong>DaVinci Resolve Tip:</strong> Each asset and transcript line is tagged with exactly <strong>3 words</strong> for fast media pool search.
+                Click any <span class="resolve-tag" style="cursor:default;">green tag</span> to copy it to clipboard, then paste into DaVinci Resolve's search bar.
+            </div>
+
+            <h3 class="section-title">Priority Breakdown</h3>
+            <div id="priority-chart" style="display:flex;gap:4px;height:30px;border-radius:6px;overflow:hidden;margin-bottom:25px;"></div>
+            <div id="priority-legend" style="display:flex;gap:20px;flex-wrap:wrap;font-size:0.85em;color:#8888aa;margin-bottom:25px;"></div>
+
+            <h3 class="section-title">Category Breakdown</h3>
+            <div id="category-list"></div>
+
+            <div style="margin-top:30px;text-align:center;">
+                <a href="../index.html" class="back-link">&larr; Back to Project Home</a>
+            </div>
+        </div>
+
+        <!-- TAB: FULL INVENTORY -->
+        <div id="tab-inventory" class="tab-content">
+            <div class="search-bar">
+                <input type="text" id="inv-search" placeholder="Search files, tags, categories... (3-word DaVinci tags work here too)" oninput="filterInventory()">
+                <button class="filter-btn active" onclick="filterType('all',this)">All</button>
+                <button class="filter-btn" onclick="filterType('Video',this)">Video</button>
+                <button class="filter-btn" onclick="filterType('Audio',this)">Audio</button>
+                <button class="filter-btn" onclick="filterType('Image',this)">Image</button>
+                <button class="filter-btn" onclick="filterType('Document',this)">Docs</button>
+                <button class="filter-btn" onclick="filterType('Subtitle',this)">Subtitle</button>
+            </div>
+            <div class="scroll-wrap">
+                <table class="inv-table">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">File Path</th>
+                            <th onclick="sortTable(1)">Type</th>
+                            <th onclick="sortTable(2)">Category</th>
+                            <th onclick="sortTable(3)">DaVinci 3-Word Tag</th>
+                            <th onclick="sortTable(4)">Pri</th>
+                            <th>Script Scene</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inv-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB: SCRIPT MAP -->
+        <div id="tab-scriptmap" class="tab-content">
+            <div class="hint">
+                Each transcript line is scored with <strong>3 search words</strong> you can paste directly into DaVinci Resolve's media pool search to find the matching asset instantly.
+                Click any green tag to copy.
+            </div>
+            <div id="script-scenes"></div>
+        </div>
+
+        <!-- TAB: DAVINCI RESOLVE TAGS -->
+        <div id="tab-resolvetags" class="tab-content">
+            <div class="hint">
+                <strong>Quick Reference:</strong> All 3-word DaVinci Resolve tags organized by scene. Copy and paste into the <em>Media Pool</em> or <em>Edit Index</em> search bar.
+            </div>
+            <div class="search-bar">
+                <input type="text" id="tag-search" placeholder="Filter tags..." oninput="filterTags()">
+            </div>
+            <div id="all-tags-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;"></div>
+        </div>
+    </div>
+
+    <div class="copy-toast" id="copy-toast">Copied to clipboard!</div>
+
+    <script>
+    // === TRANSCRIPT DATA WITH 3-WORD TAGS ===
+    const scriptScenes = [
+        {
+            id: 1,
+            title: "Scene 1: The Heavy Mic",
+            color: "#e74c3c",
+            transcript: "I'm standing here holding a massive golden microphone that is honestly too heavy to carry. It's a symbol of the engineering elites in enterprises who move like zombie snails in a ten-year race toward AI transformation. I'm unlikely to get that microphone from them anyway.",
+            threeWordTags: ["golden mic opening", "heavy mic intro", "zombie snails enterprise", "engineering elites symbol", "AI transformation race"],
+            assets: [
+                { file: "01_Video_Footage/A-Roll/Replay 2026-02-09-06-59.mp4", tag: "aroll main footage", type: "Video" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_golden_microphone_20260213_v1_texture.png", tag: "golden mic 3D", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/001_anime_frame_1_opening_the_heavy_mic_20260213_v1.png", tag: "anime mic opening", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_01_heavy_mic_20260213_203750.png", tag: "background heavy mic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/1__opening_-_the_heavy_mic_20260213_192335.png", tag: "opening scene graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_01_heavy_mic_20260213_204227.png", tag: "memory palace mic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_01_golden_mic_hierarchy_20260213_211013.png", tag: "mic hierarchy diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_01_scene_1_-_the_heavy_mic.jpeg", tag: "diagram scene one", type: "Image" },
+                { file: "02_Audio/Music/track_01_opening_theme.wav", tag: "opening theme music", type: "Audio" },
+                { file: "03_Graphics/Lower_Thirds/chapter_01_introduction.png", tag: "chapter one intro", type: "Image" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/01_golden_mic_intro.mp4", tag: "remotion mic animation", type: "Video" }
+            ]
+        },
+        {
+            id: 2,
+            title: "Scene 2: The Pivot",
+            color: "#3498db",
+            transcript: "Last week, I made a decision. I realized that while I'm talking about complex engineering concepts for 240 workflows, people close to me are struggling. I'm just scaring people off. I am pivoting to building tools with no code and no technical background so you can become a delivery pilot in the AI age.",
+            threeWordTags: ["pivot decision moment", "240 workflows stat", "delivery pilot concept", "no code tools", "scaring people off"],
+            assets: [
+                { file: "03_Graphics/Lower_Thirds/002_anime_frame_2_the_pivot_20260213_v1.png", tag: "anime pivot frame", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_02_pivot_20260213_203750.png", tag: "background pivot scene", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/2__the_pivot_20260213_192335.png", tag: "pivot scene graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_02_the_pivot_20260213_204227.png", tag: "memory palace pivot", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_the_pivot_title_card_20260213_200448.png", tag: "pivot title card", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_240_workflows_stat_20260213_200448.png", tag: "240 workflows graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_02_pivot_title_card_20260213_205312.png", tag: "ig pivot card", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_01_240_workflows_stat_20260213_205312.png", tag: "ig workflows stat", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_02_240_workflow_architecture_20260213_211013.png", tag: "workflow architecture diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_02_scene_2_-_the_pivot.jpeg", tag: "diagram scene two", type: "Image" },
+                { file: "02_Audio/Music/track_02_transformation.wav", tag: "transformation track music", type: "Audio" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/02_pivot_decision.mp4", tag: "remotion pivot animation", type: "Video" },
+                { file: "06_PostProduction_Assets/Manim_Animations/output/videos/video_animations/1080p60/NumberCounterAnimation.mp4", tag: "number counter animation", type: "Video" }
+            ]
+        },
+        {
+            id: 3,
+            title: "Scene 3: Statues vs. Mercury",
+            color: "#9b59b6",
+            transcript: "Look at this hall of frozen, stone statues. These represent hard-coded, rigid rules that break the moment things change. Compare that to a character made of liquid mercury, shifting shapes like the Terminator. That is the difference between static systems and the dynamic rules of AI. We are breaking the iron chains of the old school system; those old lessons are obsolete.",
+            threeWordTags: ["statues mercury contrast", "static dynamic rules", "breaking iron chains", "terminator liquid mercury", "rigid rules obsolete"],
+            assets: [
+                { file: "03_Graphics/Lower_Thirds/003_anime_frame_3_statues_vs_mercury_20260213_v1.png", tag: "anime statues mercury", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_03a_statues_20260213_203750.png", tag: "background statues scene", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_03b_mercury_20260213_203750.png", tag: "background mercury scene", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_mercury_liquid_figure_20260213_v1_texture.png", tag: "3D mercury figure", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/3__statues_vs._mercury_20260213_192335.png", tag: "statues vs graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_03_statues_vs_mercury_20260213_204227.png", tag: "memory palace mercury", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_03_static_vs_dynamic_flow_20260213_211013.png", tag: "static dynamic diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_03_static_vs_dynamic_20260213_205312.png", tag: "ig static dynamic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_04_breaking_chains_20260213_205312.png", tag: "ig breaking chains", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_breaking_chains_animation_20260213_200448.png", tag: "breaking chains graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_split_screen_labels_20260213_200448.png", tag: "split screen labels", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_03_scene_3_-_statues_vs_mercury.jpeg", tag: "diagram scene three", type: "Image" },
+                { file: "02_Audio/Music/track_03_innovation.wav", tag: "innovation track music", type: "Audio" },
+                { file: "06_PostProduction_Assets/Manim_Animations/output/videos/video_animations/1080p60/StaticVsDynamicAnimation.mp4", tag: "static dynamic animation", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/03_zombie_snails.mp4", tag: "remotion zombie snails", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/04_statues_vs_mercury.mp4", tag: "remotion statues mercury", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/05_breaking_chains.mp4", tag: "remotion breaking chains", type: "Video" },
+                { file: "03_Graphics/Animations/The Statue Hall - Dynamic vs Static Rules Replay 2026-02-09-17-22.mp4", tag: "statue hall replay", type: "Video" }
+            ]
+        },
+        {
+            id: 4,
+            title: "Scene 4: The Local Powerhouse (Clone Lab)",
+            color: "#27ae60",
+            transcript: "It starts in the Clone Lab. Getting GitHub repositories to your local powerhouse is the key to running agents. First, we clone the delivery pilot template to an empty folder. Once you have that repository, you use the agent to execute commands and build your tooling system.",
+            threeWordTags: ["clone lab github", "local powerhouse agents", "delivery pilot template", "git clone terminal", "tooling system build"],
+            assets: [
+                { file: "03_Graphics/Lower_Thirds/004_anime_frame_4_the_clone_lab_20260213_v1.png", tag: "anime clone lab", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_04_clone_lab_20260213_203750.png", tag: "background clone lab", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_laptop_terminal_20260213_v1_texture.png", tag: "3D laptop terminal", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/4__the_clone_lab_20260213_192335.png", tag: "clone lab graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_04_clone_lab_20260213_204227.png", tag: "memory palace clone", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_04_git_clone_sequence_20260213_211013.png", tag: "git clone diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_05_clone_steps_checklist_20260213_205312.png", tag: "ig clone checklist", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_07_cloning_flowchart_20260213_205312.png", tag: "ig cloning flowchart", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_cloning_yourself_metaphor_20260213_200448.png", tag: "cloning metaphor graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_command_highlights_20260213_200448.png", tag: "command highlights graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_icon_github_logo_v1.png", tag: "github logo icon", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_04_scene_4_-_the_clone_lab.jpeg", tag: "diagram scene four", type: "Image" },
+                { file: "02_Audio/Music/track_04_tech_ecosystem.wav", tag: "tech ecosystem music", type: "Audio" },
+                { file: "06_PostProduction_Assets/Manim_Animations/output/videos/video_animations/1080p60/GitCloneAnimation.mp4", tag: "git clone animation", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/06_clone_lab.mp4", tag: "remotion clone lab", type: "Video" },
+                { file: "01_Video_Footage/Screen_Capture/screencapture2_feb2.mov", tag: "screen capture terminal", type: "Video" },
+                { file: "01_Video_Footage/Screen_Capture/screencapture3_feb2_Replay 2026-02-09-17-48.mp4", tag: "screen capture clone", type: "Video" }
+            ]
+        },
+        {
+            id: 5,
+            title: "Scene 5: The Free Tier Journey (Evolution)",
+            color: "#f39c12",
+            transcript: "You can start with zero capital. Use the standard kit—Visual Studio and GitHub—for free. If you want a pair pilot, use GitHub Co-pilot. If you want something local and agentic, Cursor AI makes more sense. Think of it like an evolution; I swap between all three.",
+            threeWordTags: ["zero capital start", "free tier tools", "cursor AI agentic", "vscode github free", "evolution tool swap"],
+            assets: [
+                { file: "03_Graphics/Lower_Thirds/005_anime_frame_5_the_evolution_20260213_v1.png", tag: "anime evolution frame", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_05_evolution_20260213_203750.png", tag: "background evolution scene", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_free_tier_toolbox_20260213_v1_texture.png", tag: "3D free toolbox", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/5__the_evolution_20260213_192335.png", tag: "evolution scene graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_05_evolution_20260213_204227.png", tag: "memory palace evolution", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_05_tool_evolution_timeline_20260213_211013.png", tag: "tool evolution diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_06_tool_comparison_table_20260213_205312.png", tag: "ig tool comparison", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_25_zero_capital_quote_20260213_205312.png", tag: "ig zero capital", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_icon_vscode_logo_v1.png", tag: "vscode logo icon", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_icon_cursor_ai_logo_v1.png", tag: "cursor AI logo", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_tech_company_logos_20260213_200448.png", tag: "tech company logos", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_11_tech_logos_layout_20260213_205312.png", tag: "ig tech logos", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_05_scene_5_-_the_free_tier_journey.jpeg", tag: "diagram scene five", type: "Image" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/07_free_tier_tools.mp4", tag: "remotion free tools", type: "Video" },
+                { file: "01_Video_Footage/Screen_Capture/screencapture4_feb2_Replay 2026-02-09-18-01.mp4", tag: "screen capture tools", type: "Video" },
+                { file: "01_Video_Footage/Screen_Capture/screencapture5_feb2_Replay 2026-02-09-18-08.mp4", tag: "screen capture vscode", type: "Video" }
+            ]
+        },
+        {
+            id: 6,
+            title: "Scene 6: The Internet Kill Switch (Nursery)",
+            color: "#e67e22",
+            transcript: "If you're a parent putting kids to bed, consistency is your magic shield. I've built a workflow in my flat that acts as a giant red off-lever for the internet. It lives inside GitHub and allows me to turn one kid's internet off while keeping the other's on. It might start a fight, but we know what we're doing.",
+            threeWordTags: ["internet kill switch", "parenting magic shield", "github workflow lever", "kids internet control", "consistency magic shield"],
+            assets: [
+                { file: "03_Graphics/Lower_Thirds/006_anime_frame_6_the_nursery_20260213_v1.png", tag: "anime nursery frame", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_06_nursery_20260213_203750.png", tag: "background nursery scene", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_internet_kill_switch_20260213_v1_texture.png", tag: "3D kill switch", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_06_nursery_20260213_204227.png", tag: "memory palace nursery", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_06_internet_kill_switch_flow_20260213_211013.png", tag: "kill switch diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_20_internet_kill_switch_20260213_205312.png", tag: "ig kill switch", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_10_family_friendly_badge_20260213_205312.png", tag: "ig family badge", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_09_consistency_quote_20260213_205312.png", tag: "ig consistency quote", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_internet_kill_switch_label_20260213_200448.png", tag: "kill switch label", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_family-friendly_badge_20260213_200448.png", tag: "family friendly badge", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_consistency_=_magic_shield_quote_20260213_200448.png", tag: "magic shield quote", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_icon_family_shield_v1.png", tag: "family shield icon", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_06_scene_6_-_internet_kill_switch.jpeg", tag: "diagram scene six", type: "Image" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/08_internet_kill_switch.mp4", tag: "remotion kill switch", type: "Video" },
+                { file: "01_Video_Footage/Screen_Capture/screencapture6_feb2_Replay 2026-02-09-18-18.mp4", tag: "screen capture github", type: "Video" }
+            ]
+        },
+        {
+            id: 7,
+            title: "Scene 7: The LLM Feast (Crystal Ball)",
+            color: "#1abc9c",
+            transcript: "We are serving a digital feast today. You have a choice of models: Claude—the reasoning layer is top-notch with Sonnet 3.5, 4.5, and 4.6 for complex problems. ChatGPT—the versatile leader; I use it mostly as a search engine. DeepSeek—the coding disruptor, a powerful free alternative. Gemini—the versatile platform that handles images via Nano Banana, slides, and code all in one free tier.",
+            threeWordTags: ["LLM feast models", "claude reasoning layer", "chatgpt search engine", "deepseek coding disruptor", "gemini free platform", "digital feast table"],
+            assets: [
+                { file: "03_Graphics/Lower_Thirds/007_anime_frame_7_the_crystal_ball_20260213_v1.png", tag: "anime crystal ball", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_07_crystal_ball_20260213_203750.png", tag: "background crystal ball", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_ai_brain_feast_20260213_v1_texture.png", tag: "3D AI brain", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_07_crystal_ball_20260213_204227.png", tag: "memory palace crystal", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/009_anime_frame_9_the_digital_feast_20260213_v1.png", tag: "anime digital feast", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_09_digital_feast_20260213_203750.png", tag: "background digital feast", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/9__the_digital_feast_20260213_192335.png", tag: "digital feast graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_09_digital_feast_20260213_204227.png", tag: "memory palace feast", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_07_tech_platform_comparison_20260213_211013.png", tag: "tech platform diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_09_llm_comparison_matrix_20260213_211013.png", tag: "LLM comparison diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_llm_feature_cards_20260213_200448.png", tag: "LLM feature cards", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_14_llm_claude_card_20260213_205312.png", tag: "ig claude card", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_15_llm_chatgpt_card_20260213_205312.png", tag: "ig chatgpt card", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_16_llm_deepseek_card_20260213_205312.png", tag: "ig deepseek card", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_17_llm_gemini_card_20260213_205312.png", tag: "ig gemini card", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_18_100_tablets_stat_20260213_205312.png", tag: "ig tablets stat", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_100_tablets_number_visual_20260213_200448.png", tag: "100 tablets visual", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_icon_anthropic_logo_v1.png", tag: "anthropic logo icon", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_icon_openai_logo_v1.png", tag: "openai logo icon", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_icon_deepseek_logo_v1.png", tag: "deepseek logo icon", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_icon_google_gemini_logo_v1.png", tag: "gemini logo icon", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_07_scene_7_-_the_llm_feast.jpeg", tag: "diagram scene seven", type: "Image" },
+                { file: "02_Audio/Music/track_05_the_feast.wav", tag: "feast theme music", type: "Audio" },
+                { file: "06_PostProduction_Assets/Manim_Animations/output/videos/video_animations/1080p60/LLMFeatureCardsAnimation.mp4", tag: "LLM cards animation", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/09_llm_feast.mp4", tag: "remotion LLM feast", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/10_claude_card.mp4", tag: "remotion claude card", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/11_chatgpt_card.mp4", tag: "remotion chatgpt card", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/12_deepseek_card.mp4", tag: "remotion deepseek card", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/13_gemini_card.mp4", tag: "remotion gemini card", type: "Video" }
+            ]
+        },
+        {
+            id: 8,
+            title: "Scene 8: The Bespoke Logic (Engine Room)",
+            color: "#2980b9",
+            transcript: "This is my bespoke implementation. It uses n8n to trigger logic that drops traffic based on specific MAC addresses. I created a user interface on GitHub Pages so my wife can easily manage it without facing a complex system.",
+            threeWordTags: ["n8n bespoke logic", "MAC address traffic", "github pages interface", "automation engine room", "wife manages easily"],
+            assets: [
+                { file: "03_Graphics/Lower_Thirds/008_anime_frame_8_the_engine_room_20260213_v1.png", tag: "anime engine room", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_08_engine_room_20260213_203750.png", tag: "background engine room", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_automation_gear_20260213_v1_texture.png", tag: "3D automation gear", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/8__the_engine_room_20260213_192335.png", tag: "engine room graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_08_engine_room_20260213_204227.png", tag: "memory palace engine", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_10_n8n_automation_flow_20260213_211013.png", tag: "n8n automation diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_19_n8n_workflow_diagram_20260213_205312.png", tag: "ig n8n workflow", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_n8n_workflow_diagram_20260213_200448.png", tag: "n8n workflow graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_github_pages_preview_20260213_200448.png", tag: "github pages preview", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_icon_n8n_logo_v1.png", tag: "n8n logo icon", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_08_scene_8_-_bespoke_logic_n8n.jpeg", tag: "diagram scene eight", type: "Image" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/14_n8n_bespoke.mp4", tag: "remotion n8n bespoke", type: "Video" },
+                { file: "01_Video_Footage/Screen_Capture/screencapture7_feb2_Replay 2026-02-09-18-26.mp4", tag: "screen capture n8n", type: "Video" },
+                { file: "01_Video_Footage/Screen_Capture/screencapture8_feb2_Replay 2026-02-09-18-31.mp4", tag: "screen capture pages", type: "Video" }
+            ]
+        },
+        {
+            id: 9,
+            title: "Scene 9: The Success Metrics (Power Station)",
+            color: "#c0392b",
+            transcript: "You will break things—I've broken my own system 37 times while adding features. But because we use GitHub Actions, every change is a CI/CD pipeline deployment. You can see your live execution and your audit trail. Your success metrics are compliance, accuracy, and, ultimately, self-growth.",
+            threeWordTags: ["37 commits broken", "CICD pipeline deploy", "success metrics compliance", "github actions audit", "power station metrics"],
+            assets: [
+                { file: "03_Graphics/Lower_Thirds/010_anime_frame_10_the_power_station_20260213_v1.png", tag: "anime power station", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_10_power_station_20260213_203750.png", tag: "background power station", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_rocket_cicd_20260213_v1_texture.png", tag: "3D rocket CICD", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/10__the_power_station_20260213_192335.png", tag: "power station graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_10_power_station_20260213_204227.png", tag: "memory palace power", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_11_cicd_pipeline_diagram_20260213_211013.png", tag: "CICD pipeline diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_08_speed_benchmark_chart_20260213_211013.png", tag: "speed benchmark chart", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_21_37_commits_counter_20260213_205312.png", tag: "ig commits counter", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_22_cicd_pipeline_20260213_205312.png", tag: "ig CICD pipeline", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_23_success_metrics_dashboard_20260213_205312.png", tag: "ig success metrics", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_12_speed_1000x_20260213_205312.png", tag: "ig speed 1000x", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_13_speed_comparison_bars_20260213_205312.png", tag: "ig speed comparison", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_37+_commits_counter_20260213_200448.png", tag: "37 commits graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_speed_comparison_20260213_200448.png", tag: "speed comparison graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/gfx_speed_multiplier_20260213_200448.png", tag: "speed multiplier graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_09_scene_9_-_success_metrics_cicd.jpeg", tag: "diagram scene nine", type: "Image" },
+                { file: "06_PostProduction_Assets/Manim_Animations/output/videos/video_animations/1080p60/CICDPipelineAnimation.mp4", tag: "CICD pipeline animation", type: "Video" },
+                { file: "06_PostProduction_Assets/Manim_Animations/output/videos/video_animations/1080p60/SpeedMultiplierAnimation.mp4", tag: "speed multiplier animation", type: "Video" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/15_success_metrics.mp4", tag: "remotion success metrics", type: "Video" },
+                { file: "01_Video_Footage/Screen_Capture/screencapture9_Replay 2026-02-09-19-39.mp4", tag: "screen capture actions", type: "Video" },
+                { file: "01_Video_Footage/Screen_Capture/screencapture10+Replay 2026-02-09-19-56.mp4", tag: "screen capture deploy", type: "Video" }
+            ]
+        },
+        {
+            id: 10,
+            title: "Scene 10: Conclusion (The Balcony)",
+            color: "#8e44ad",
+            transcript: "Every simulation starts with an assessment. Take the assessment, identify your gaps, and then watch the simulation. Clone the repo, configure your environment, and build the future with me. Till next time. Love. Bye-bye.",
+            threeWordTags: ["conclusion call action", "balcony drone city", "clone repo future", "assessment identify gaps", "build future together"],
+            assets: [
+                { file: "03_Graphics/Lower_Thirds/012_anime_frame_12_the_balcony_20260213_v1.png", tag: "anime balcony frame", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/bg_12_balcony_20260213_203750.png", tag: "background balcony scene", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_futuristic_city_20260213_v1_texture.png", tag: "3D futuristic city", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/000_3d_compass_pivot_20260213_v1_texture.png", tag: "3D compass pivot", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/12__the_balcony_20260213_192335.png", tag: "balcony scene graphic", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/mp_12_balcony_20260213_204227.png", tag: "memory palace balcony", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/dg_12_journey_roadmap_20260213_211013.png", tag: "journey roadmap diagram", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/ig_24_call_to_action_20260213_205312.png", tag: "ig call action", type: "Image" },
+                { file: "03_Graphics/Lower_Thirds/diagram_MM_10_scene_10_-_conclusion_call_to_action.jpeg", tag: "diagram scene ten", type: "Image" },
+                { file: "06_PostProduction_Assets/Remotion_Animations/2025-14-02/16_drone_city_finale.mp4", tag: "remotion drone finale", type: "Video" }
+            ]
+        }
+    ];
+
+    // === SHARED ASSETS (used across multiple scenes) ===
+    const sharedAssets = [
+        { file: "04_Text/Subtitles/source_subtitle.srt", tag: "source subtitle file", type: "Subtitle", scene: "All" },
+        { file: "04_Text/Subtitles/tuesday_3_blue memory palace green aroll background red screen captire.srt", tag: "colored marker subtitles", type: "Subtitle", scene: "All" },
+        { file: "05_PreProduction/Scripts_EDL/source_transcript.md", tag: "full script transcript", type: "Document", scene: "All" },
+        { file: "05_PreProduction/Scripts_EDL/source_edl.md", tag: "edit decision list", type: "Document", scene: "All" },
+        { file: "05_PreProduction/Scripts_EDL/source_shotlist.md", tag: "shot list planning", type: "Document", scene: "All" },
+        { file: "05_PreProduction/Scripts_EDL/source_broll.md", tag: "broll shot list", type: "Document", scene: "All" },
+        { file: "05_PreProduction/Scripts_EDL/source_graphics.md", tag: "graphics spec sheet", type: "Document", scene: "All" },
+        { file: "05_PreProduction/Scripts_EDL/source_music.md", tag: "music cue sheet", type: "Document", scene: "All" },
+        { file: "05_PreProduction/Scripts_EDL/source_storyboard.md", tag: "storyboard visual flow", type: "Document", scene: "All" },
+        { file: "02_Audio/Music/ambient_digital_space.wav", tag: "ambient digital space", type: "Audio", scene: "All" },
+        { file: "02_Audio/Music/ambient_futuristic_city.wav", tag: "ambient futuristic city", type: "Audio", scene: "All" },
+        { file: "02_Audio/Music/ambient_tech_office.wav", tag: "ambient tech office", type: "Audio", scene: "All" },
+        { file: "02_Audio/Music/sfx_error_beep.wav", tag: "sfx error beep", type: "Audio", scene: "Transitions" },
+        { file: "02_Audio/Music/sfx_impact_hit.wav", tag: "sfx impact hit", type: "Audio", scene: "Transitions" },
+        { file: "02_Audio/Music/sfx_riser_buildup.wav", tag: "sfx riser buildup", type: "Audio", scene: "Transitions" },
+        { file: "02_Audio/Music/sfx_success_chime.wav", tag: "sfx success chime", type: "Audio", scene: "Transitions" },
+        { file: "02_Audio/Music/sfx_tech_beep.wav", tag: "sfx tech beep", type: "Audio", scene: "Transitions" },
+        { file: "02_Audio/Music/sfx_typing_sequence.wav", tag: "sfx typing sequence", type: "Audio", scene: "4,8" },
+        { file: "02_Audio/Music/sfx_ui_click.wav", tag: "sfx ui click", type: "Audio", scene: "Transitions" },
+        { file: "02_Audio/Music/sfx_whoosh_transition.wav", tag: "sfx whoosh transition", type: "Audio", scene: "Transitions" },
+        { file: "03_Graphics/Logos_Icons/feb 2 _memory_palace.jpg", tag: "memory palace thumbnail", type: "Image", scene: "All" },
+        { file: "03_Graphics/Lower_Thirds/lt_01_agentic_era.png", tag: "lower third agentic", type: "Image", scene: "3,4" },
+        { file: "03_Graphics/Lower_Thirds/lt_07_deliverpilot.png", tag: "lower third deliverpilot", type: "Image", scene: "2,10" },
+        { file: "03_Graphics/Lower_Thirds/lt_09_n8n_workflows.png", tag: "lower third n8n", type: "Image", scene: "8" },
+        { file: "03_Graphics/Lower_Thirds/lt_10_ai_transformation.png", tag: "lower third AI", type: "Image", scene: "1,10" }
+    ];
+
+    // === LOWER THIRDS / CHAPTER MARKERS (used for structure) ===
+    const chapterMarkers = [];
+    for (let i = 1; i <= 15; i++) {
+        const names = ["Introduction","Background","Core Concepts","Workflow Architecture","Implementation",
+                       "Automation Strategies","Integration","Monitoring And Analytics","Scaling Challenges",
+                       "Future Directions","Case Studies","Advanced Topics","Best Practices","Troubleshooting","Conclusion"];
+        chapterMarkers.push({
+            file: `03_Graphics/Lower_Thirds/chapter_${String(i).padStart(2,'0')}_${names[i-1].toLowerCase().replace(/ /g,'_')}.png`,
+            tag: `chapter ${names[i-1].toLowerCase().split(' ').slice(0,2).join(' ')}`,
+            type: "Image"
+        });
+    }
+
+    // === BUILD FLAT INVENTORY ===
+    let allFiles = [];
+
+    scriptScenes.forEach(scene => {
+        scene.assets.forEach(a => {
+            allFiles.push({ ...a, sceneId: scene.id, sceneName: scene.title });
+        });
+    });
+    sharedAssets.forEach(a => {
+        allFiles.push({ ...a, sceneId: 0, sceneName: a.scene });
+    });
+
+    // === INITIALIZATION ===
+    let currentTypeFilter = 'all';
+
+    function init() {
+        // Stats
+        const counts = { Video: 0, Audio: 0, Image: 0, Document: 0, Subtitle: 0, Data: 0 };
+        allFiles.forEach(f => { if (counts[f.type] !== undefined) counts[f.type]++; });
+        document.getElementById('stat-total').textContent = allFiles.length;
+        document.getElementById('stat-video').textContent = counts.Video;
+        document.getElementById('stat-audio').textContent = counts.Audio;
+        document.getElementById('stat-image').textContent = counts.Image;
+        document.getElementById('stat-doc').textContent = counts.Document;
+
+        // Priority chart
+        const priColors = { 5: '#e74c3c', 4: '#e67e22', 3: '#f1c40f', 2: '#3498db', 1: '#95a5a6' };
+        const priLabels = { 5: 'Critical', 4: 'High', 3: 'Medium', 2: 'Low', 1: 'Archive' };
+        const priCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+        // rough estimate from CSV priority scores
+        priCounts[5] = 13; priCounts[4] = 22; priCounts[3] = 62; priCounts[2] = 100; priCounts[1] = 5;
+        const total = Object.values(priCounts).reduce((a,b) => a+b, 0);
+        const chart = document.getElementById('priority-chart');
+        const legend = document.getElementById('priority-legend');
+        for (let p = 5; p >= 1; p--) {
+            const pct = (priCounts[p] / total * 100).toFixed(1);
+            chart.innerHTML += `<div style="flex:${priCounts[p]};background:${priColors[p]};display:flex;align-items:center;justify-content:center;font-size:0.75em;font-weight:bold;color:white;">${pct}%</div>`;
+            legend.innerHTML += `<span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:${priColors[p]};margin-right:4px;vertical-align:middle;"></span>${priLabels[p]} (${priCounts[p]})</span>`;
+        }
+
+        // Category list
+        const cats = {};
+        allFiles.forEach(f => { cats[f.type] = (cats[f.type] || 0) + 1; });
+        const catEl = document.getElementById('category-list');
+        const catColors = { Video: '#27ae60', Audio: '#2980b9', Image: '#8e44ad', Document: '#d35400', Subtitle: '#f39c12', Data: '#1abc9c' };
+        Object.entries(cats).sort((a,b) => b[1]-a[1]).forEach(([cat, count]) => {
+            catEl.innerHTML += `<div style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;margin:4px;background:#1a1a2e;border-radius:6px;border:1px solid ${catColors[cat] || '#555'};"><span style="color:${catColors[cat] || '#ccc'};font-weight:bold;">${cat}</span><span style="color:#8888aa;">${count} files</span></div>`;
+        });
+
+        buildInventoryTable();
+        buildScriptMap();
+        buildTagsGrid();
+    }
+
+    // === INVENTORY TABLE ===
+    function buildInventoryTable() {
+        const tbody = document.getElementById('inv-tbody');
+        tbody.innerHTML = '';
+        const search = (document.getElementById('inv-search').value || '').toLowerCase();
+
+        allFiles.forEach(f => {
+            if (currentTypeFilter !== 'all' && f.type !== currentTypeFilter) return;
+            const searchable = `${f.file} ${f.tag} ${f.type} ${f.sceneName || ''}`.toLowerCase();
+            if (search && !searchable.includes(search)) return;
+
+            const typeClass = `tag-${f.type.toLowerCase()}`;
+            const fileName = f.file.split('/').pop();
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="file-path" title="${f.file}">${fileName}</td>
+                <td><span class="tag ${typeClass}">${f.type}</span></td>
+                <td style="color:#8888aa;font-size:0.88em;">${f.file.split('/').slice(0,-1).join('/')}</td>
+                <td><span class="resolve-tag" onclick="copyTag('${f.tag.replace(/'/g, "\\'")}')">${f.tag}</span></td>
+                <td style="text-align:center;">${f.sceneId || '-'}</td>
+                <td style="color:#8888aa;font-size:0.85em;">${f.sceneName || ''}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function filterInventory() { buildInventoryTable(); }
+    function filterType(type, btn) {
+        currentTypeFilter = type;
+        document.querySelectorAll('.search-bar .filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        buildInventoryTable();
+    }
+
+    // === SCRIPT MAP ===
+    function buildScriptMap() {
+        const container = document.getElementById('script-scenes');
+        container.innerHTML = '';
+
+        scriptScenes.forEach(scene => {
+            const card = document.createElement('div');
+            card.className = 'scene-card';
+
+            // Split transcript into sentences for individual tagging
+            const sentences = scene.transcript.split(/(?<=[.!?])\s+/).filter(s => s.trim());
+
+            card.innerHTML = `
+                <div class="scene-card-header scene-${scene.id}-hdr" onclick="toggleScene(this)">
+                    <span>${scene.title}</span>
+                    <span style="display:flex;align-items:center;gap:12px;">
+                        <span style="font-size:0.8em;color:#8888aa;">${scene.assets.length} assets</span>
+                        <span class="arrow">&#9654;</span>
+                    </span>
+                </div>
+                <div class="scene-card-body">
+                    <div style="margin-bottom:15px;">
+                        <div style="font-size:0.85em;color:#e74c3c;font-weight:600;margin-bottom:8px;">TRANSCRIPT (with 3-word DaVinci search tags)</div>
+                        ${sentences.map((s, i) => `
+                            <div class="transcript-line">
+                                <div class="text">${s}</div>
+                                <div class="tags-row">
+                                    ${scene.threeWordTags[i] ? `<span class="resolve-tag" onclick="copyTag('${scene.threeWordTags[i]}')">${scene.threeWordTags[i]}</span>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="font-size:0.85em;color:#1abc9c;font-weight:600;margin-bottom:8px;">MATCHED ASSETS</div>
+                    <div class="asset-list">
+                        ${scene.assets.map(a => {
+                            const icons = { Video: '🎬', Audio: '🎵', Image: '🖼️', Document: '📄', Subtitle: '💬' };
+                            return `<div class="asset-item">
+                                <span class="type-icon">${icons[a.type] || '📁'}</span>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="color:#ccc;font-size:0.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${a.file}">${a.file.split('/').pop()}</div>
+                                    <span class="resolve-tag" onclick="copyTag('${a.tag.replace(/'/g, "\\'")}')" style="font-size:0.78em;">${a.tag}</span>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        // Shared assets section
+        const shared = document.createElement('div');
+        shared.className = 'scene-card';
+        shared.innerHTML = `
+            <div class="scene-card-header" style="background:linear-gradient(90deg,#95a5a622,transparent);border-left:4px solid #95a5a6;" onclick="toggleScene(this)">
+                <span>Shared Assets (All Scenes / Transitions)</span>
+                <span style="display:flex;align-items:center;gap:12px;">
+                    <span style="font-size:0.8em;color:#8888aa;">${sharedAssets.length} assets</span>
+                    <span class="arrow">&#9654;</span>
+                </span>
+            </div>
+            <div class="scene-card-body">
+                <div class="asset-list">
+                    ${sharedAssets.map(a => {
+                        const icons = { Video: '🎬', Audio: '🎵', Image: '🖼️', Document: '📄', Subtitle: '💬' };
+                        return `<div class="asset-item">
+                            <span class="type-icon">${icons[a.type] || '📁'}</span>
+                            <div style="flex:1;min-width:0;">
+                                <div style="color:#ccc;font-size:0.9em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${a.file}">${a.file.split('/').pop()}</div>
+                                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                                    <span class="resolve-tag" onclick="copyTag('${a.tag}')" style="font-size:0.78em;">${a.tag}</span>
+                                    <span style="font-size:0.75em;color:#8888aa;">Scene: ${a.scene}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+        container.appendChild(shared);
+    }
+
+    function toggleScene(header) {
+        header.classList.toggle('open');
+        const body = header.nextElementSibling;
+        body.classList.toggle('open');
+    }
+
+    // === TAGS GRID ===
+    function buildTagsGrid() {
+        const grid = document.getElementById('all-tags-grid');
+        grid.innerHTML = '';
+        const search = (document.getElementById('tag-search')?.value || '').toLowerCase();
+
+        scriptScenes.forEach(scene => {
+            const tags = [];
+            scene.threeWordTags.forEach(t => tags.push(t));
+            scene.assets.forEach(a => tags.push(a.tag));
+
+            const filtered = search ? tags.filter(t => t.toLowerCase().includes(search)) : tags;
+            if (filtered.length === 0) return;
+
+            const card = document.createElement('div');
+            card.style.cssText = `background:#1a1a2e;border:1px solid ${scene.color};border-radius:8px;padding:12px;`;
+            card.innerHTML = `
+                <div style="font-weight:700;color:${scene.color};margin-bottom:8px;font-size:0.9em;">${scene.title}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                    ${filtered.map(t => `<span class="resolve-tag" onclick="copyTag('${t.replace(/'/g, "\\'")}')">${t}</span>`).join('')}
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function filterTags() { buildTagsGrid(); }
+
+    // === COPY TO CLIPBOARD ===
+    function copyTag(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.getElementById('copy-toast');
+            toast.textContent = `Copied: "${text}"`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 1500);
+        });
+    }
+
+    // === TAB NAVIGATION ===
+    function showTab(id) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // === SORT TABLE ===
+    let sortDir = 1;
+    function sortTable(col) {
+        const tbody = document.getElementById('inv-tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const aVal = a.children[col]?.textContent || '';
+            const bVal = b.children[col]?.textContent || '';
+            return aVal.localeCompare(bVal) * sortDir;
+        });
+        sortDir *= -1;
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    init();
+    </script>
+</body>
+</html>
