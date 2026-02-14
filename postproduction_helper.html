@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Production Helper - Video Artifact Finder</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #1e3c72;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 1em;
+            font-weight: 600;
+            color: #555;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+        }
+
+        .nav-tab.active {
+            color: #1e3c72;
+            border-bottom: 3px solid #1e3c72;
+            background: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-bar {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            transition: border 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tag {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .filter-tag:hover {
+            border-color: #1e3c72;
+            background: #e9ecef;
+        }
+
+        .filter-tag.active {
+            background: #1e3c72;
+            color: white;
+            border-color: #1e3c72;
+        }
+
+        .artifact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .artifact-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 5px solid;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .artifact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .artifact-card.shotlist { border-color: #27ae60; }
+        .artifact-card.broll { border-color: #3498db; }
+        .artifact-card.graphics { border-color: #e74c3c; }
+        .artifact-card.music { border-color: #f39c12; }
+        .artifact-card.subtitle { border-color: #9b59b6; }
+        .artifact-card.edl { border-color: #1abc9c; }
+        .artifact-card.storyboard { border-color: #e67e22; }
+        .artifact-card.transcript { border-color: #34495e; }
+
+        .artifact-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .artifact-meta {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+
+        .artifact-preview {
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.5;
+            margin-top: 10px;
+            max-height: 100px;
+            overflow: hidden;
+        }
+
+        .timeline-view {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .timeline-item {
+            padding: 15px;
+            border-left: 4px solid #1e3c72;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .timeline-time {
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 8px;
+        }
+
+        .scene-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .scene-card:hover {
+            border-color: #1e3c72;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .scene-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .scene-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .scene-time {
+            background: #1e3c72;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        .shot-item {
+            background: #f8f9fa;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 4px;
+            display: grid;
+            grid-template-columns: 80px 100px 1fr 120px;
+            gap: 15px;
+            align-items: center;
+            font-size: 0.95em;
+        }
+
+        .shot-number {
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th {
+            background: #1e3c72;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .checklist-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .checklist-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .quick-link {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .quick-link:hover {
+            background: #1e3c72;
+            color: white;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Post-Production Helper</h1>
+            <p>Video Production Assistant - Find & Place Your Artifacts</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Input Directory: /Users/rifaterdemsahin/projects/feb2/2026-02-14/input</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('overview')">📊 Overview</button>
+            <button class="nav-tab" onclick="switchTab('timeline')">⏱️ Timeline View</button>
+            <button class="nav-tab" onclick="switchTab('shots')">🎥 Shot List</button>
+            <button class="nav-tab" onclick="switchTab('broll')">📹 B-Roll</button>
+            <button class="nav-tab" onclick="switchTab('graphics')">🎨 Graphics</button>
+            <button class="nav-tab" onclick="switchTab('search')">🔍 Smart Search</button>
+            <button class="nav-tab" onclick="switchTab('checklist')">✅ Checklist</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <h2 style="margin-bottom: 20px;">Project Overview</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">40+</div>
+                    <div class="stat-label">Total Shots</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Scenes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">25+</div>
+                    <div class="stat-label">Graphics</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">18:30</div>
+                    <div class="stat-label">Est. Duration</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">Quick Access to Artifacts</h3>
+            <div class="artifact-grid">
+                <div class="artifact-card shotlist" onclick="switchTab('shots')">
+                    <div class="artifact-title">📋 Shot List</div>
+                    <div class="artifact-meta">source_shotlist.md</div>
+                    <div class="artifact-preview">Detailed shot planning with 40+ shots across 12 scenes. Includes equipment, timing, and shot types...</div>
+                </div>
+
+                <div class="artifact-card broll" onclick="switchTab('broll')">
+                    <div class="artifact-title">🎬 B-Roll Footage</div>
+                    <div class="artifact-meta">source_broll.md</div>
+                    <div class="artifact-preview">Supplementary visual content organized by scene. Categories include technology, abstract concepts, human elements...</div>
+                </div>
+
+                <div class="artifact-card graphics" onclick="switchTab('graphics')">
+                    <div class="artifact-title">🎨 Graphics & Overlays</div>
+                    <div class="artifact-meta">source_graphics.md</div>
+                    <div class="artifact-preview">25+ graphics including lower thirds, title cards, LLM feature cards, motion graphics sequences...</div>
+                </div>
+
+                <div class="artifact-card music">
+                    <div class="artifact-title">🎵 Music Tracks</div>
+                    <div class="artifact-meta">source_music.md</div>
+                    <div class="artifact-preview">Music planning and audio elements for the production...</div>
+                </div>
+
+                <div class="artifact-card subtitle">
+                    <div class="artifact-title">💬 Subtitles</div>
+                    <div class="artifact-meta">source_subtitle.srt</div>
+                    <div class="artifact-preview">Complete subtitle file with timing and dialogue...</div>
+                </div>
+
+                <div class="artifact-card edl">
+                    <div class="artifact-title">✂️ Edit Decision List</div>
+                    <div class="artifact-meta">source_edl.md</div>
+                    <div class="artifact-preview">Edit decision list for timeline construction...</div>
+                </div>
+
+                <div class="artifact-card storyboard">
+                    <div class="artifact-title">🖼️ Storyboard</div>
+                    <div class="artifact-meta">source_storyboard.md</div>
+                    <div class="artifact-preview">Visual storyboard with scene descriptions...</div>
+                </div>
+
+                <div class="artifact-card transcript">
+                    <div class="artifact-title">📝 Transcript</div>
+                    <div class="artifact-meta">source_transcript.md</div>
+                    <div class="artifact-preview">Full video transcript with dialogue and narration...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline View Tab -->
+        <div id="timeline" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Timeline View</h2>
+            <p style="color: #7f8c8d; margin-bottom: 20px;">Visual timeline of all scenes and their corresponding assets</p>
+
+            <div class="timeline-view">
+                <div class="timeline-item">
+                    <div class="timeline-time">00:00:00 - 00:00:08 | Scene 1: The Heavy Mic</div>
+                    <div><strong>Shots:</strong> 001-003 (Wide, Close-up, Medium)</div>
+                    <div><strong>B-Roll:</strong> Golden microphone angles, slow-motion weight demo</div>
+                    <div><strong>Graphics:</strong> "240 Workflows" stat counter</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">00:00:10 - 00:00:30 | Scene 2: The Pivot Decision</div>
+                    <div><strong>Shots:</strong> 004-006 (Medium close, B-roll, Medium)</div>
+                    <div><strong>B-Roll:</strong> People struggling montage, determined expression</div>
+                    <div><strong>Graphics:</strong> "The Pivot" title card</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">00:00:35 - 00:00:45 | Scene 3: Static vs. Dynamic</div>
+                    <div><strong>Shots:</strong> 007-009 (Wide, Close-up, Split screen)</div>
+                    <div><strong>B-Roll:</strong> Stone statues, liquid mercury, transformation</div>
+                    <div><strong>Graphics:</strong> Split screen labels, breaking chains animation</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">00:00:48 - 00:03:52 | Scene 4: The Clone Lab (Screen Capture)</div>
+                    <div><strong>Shots:</strong> 010-013 (Terminal, GitHub, VS Code, Cursor AI)</div>
+                    <div><strong>B-Roll:</strong> GitHub navigation, repository cloning, folder structure</div>
+                    <div><strong>Graphics:</strong> Step 1-2-3 process overlay, command highlights</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">00:03:52 - 00:05:50 | Scene 5: The Evolution (3D Printer)</div>
+                    <div><strong>Shots:</strong> 014-016 (Wide, Close-up, Medium)</div>
+                    <div><strong>B-Roll:</strong> 3D printer layers, time-lapse, CAD rotation</div>
+                    <div><strong>Graphics:</strong> "Cloning Yourself" metaphor, progress bar</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">00:09:01 - 00:11:45 | Scene 9: The Digital Feast (LLM Options)</div>
+                    <div><strong>Shots:</strong> 026-029 (Overhead, Close-up, Medium, B-roll)</div>
+                    <div><strong>B-Roll:</strong> LLM interfaces, comparison charts, UI screenshots</div>
+                    <div><strong>Graphics:</strong> LLM Feature Cards (Claude, ChatGPT, DeepSeek, Gemini)</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-time">00:17:24 - End | Scene 12: The Balcony (Conclusion)</div>
+                    <div><strong>Shots:</strong> 037-040 (Wide, Medium, Pull back, Close-up)</div>
+                    <div><strong>B-Roll:</strong> Futuristic cityscape, drone footage, skyline</div>
+                    <div><strong>Graphics:</strong> Call to action, final title card, end screen</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shot List Tab -->
+        <div id="shots" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Detailed Shot List</h2>
+
+            <div class="scene-card">
+                <div class="scene-header">
+                    <div class="scene-title">Scene 1: The Heavy Mic</div>
+                    <div class="scene-time">00:00:00 - 00:00:08</div>
+                </div>
+                <div class="shot-item">
+                    <div class="shot-number">Shot 001</div>
+                    <div>Wide</div>
+                    <div>Host with golden microphone - Establish scale</div>
+                    <div>Tripod, 50mm</div>
+                </div>
+                <div class="shot-item">
+                    <div class="shot-number">Shot 002</div>
+                    <div>Close-up</div>
+                    <div>Golden microphone detail - Emphasize weight</div>
+                    <div>Macro lens</div>
+                </div>
+                <div class="shot-item">
+                    <div class="shot-number">Shot 003</div>
+                    <div>Medium</div>
+                    <div>Host struggling with mic - Show effort</div>
+                    <div>Handheld</div>
+                </div>
+            </div>
+
+            <div class="scene-card">
+                <div class="scene-header">
+                    <div class="scene-title">Scene 4: The Clone Lab (Screen Capture)</div>
+                    <div class="scene-time">00:00:48 - 00:03:52</div>
+                </div>
+                <div class="shot-item">
+                    <div class="shot-number">Shot 010</div>
+                    <div>Screen record</div>
+                    <div>Terminal git clone - Clean terminal</div>
+                    <div>Screen capture</div>
+                </div>
+                <div class="shot-item">
+                    <div class="shot-number">Shot 011</div>
+                    <div>Screen record</div>
+                    <div>GitHub repository view - Show repo structure</div>
+                    <div>Screen capture</div>
+                </div>
+                <div class="shot-item">
+                    <div class="shot-number">Shot 012</div>
+                    <div>Screen record</div>
+                    <div>VS Code setup - Development environment</div>
+                    <div>Screen capture</div>
+                </div>
+                <div class="shot-item">
+                    <div class="shot-number">Shot 013</div>
+                    <div>Screen record</div>
+                    <div>Cursor AI demo - Agent interaction</div>
+                    <div>Screen capture</div>
+                </div>
+            </div>
+
+            <div class="scene-card">
+                <div class="scene-header">
+                    <div class="scene-title">Scene 9: The Digital Feast (LLM Options)</div>
+                    <div class="scene-time">00:09:01 - 00:11:45</div>
+                </div>
+                <div class="shot-item">
+                    <div class="shot-number">Shot 026</div>
+                    <div>Overhead</div>
+                    <div>Table with tablets - Feast visual</div>
+                    <div>Crane, 24mm</div>
+                </div>
+                <div class="shot-item">
+                    <div class="shot-number">Shot 027</div>
+                    <div>Close-up</div>
+                    <div>Individual tablets/logos - Show each LLM</div>
+                    <div>Slider</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- B-Roll Tab -->
+        <div id="broll" class="tab-content">
+            <h2 style="margin-bottom: 20px;">B-Roll Footage Planning</h2>
+
+            <div class="search-bar">
+                <input type="text" id="brollSearch" placeholder="Search B-roll by keyword, scene, or type..." onkeyup="filterBRoll()">
+                <div class="filter-tags">
+                    <div class="filter-tag" onclick="filterByCategory('tech')">Technology</div>
+                    <div class="filter-tag" onclick="filterByCategory('abstract')">Abstract</div>
+                    <div class="filter-tag" onclick="filterByCategory('human')">Human Elements</div>
+                    <div class="filter-tag" onclick="filterByCategory('props')">Props</div>
+                </div>
+            </div>
+
+            <h3>Scene 1-2: Introduction & Pivot (00:00:00 - 00:00:35)</h3>
+            <div class="checklist-container">
+                <div class="checklist-item">
+                    <input type="checkbox" id="b1">
+                    <label for="b1">Golden microphone from multiple angles</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="b2">
+                    <label for="b2">Slow-motion weight demonstration</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="b3">
+                    <label for="b3">People working on laptops (struggling)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="b4">
+                    <label for="b4">Complex workflow diagrams</label>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 25px;">Scene 3: Static vs. Dynamic (00:00:35 - 00:00:48)</h3>
+            <div class="checklist-container">
+                <div class="checklist-item">
+                    <input type="checkbox" id="b5">
+                    <label for="b5">Stone statues in museum/hall</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="b6">
+                    <label for="b6">Liquid mercury flowing</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="b7">
+                    <label for="b7">Shape-shifting animations</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="b8">
+                    <label for="b8">Ice breaking/melting</label>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 25px;">Scene 4: The Clone Lab (00:00:48 - 00:03:52)</h3>
+            <div class="checklist-container">
+                <div class="checklist-item">
+                    <input type="checkbox" id="b9">
+                    <label for="b9">GitHub website navigation</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="b10">
+                    <label for="b10">Repository cloning process</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="b11">
+                    <label for="b11">Folder structure expanding</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="b12">
+                    <label for="b12">Download progress bars</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphics Tab -->
+        <div id="graphics" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Graphics & Overlays</h2>
+
+            <h3>Style Guide</h3>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                <p><strong>Primary Colors:</strong></p>
+                <div style="display: flex; gap: 15px; margin: 10px 0;">
+                    <div style="background: #24292e; color: white; padding: 10px 20px; border-radius: 4px;">GitHub Black</div>
+                    <div style="background: #0366d6; color: white; padding: 10px 20px; border-radius: 4px;">GitHub Blue</div>
+                    <div style="background: #FFD700; color: black; padding: 10px 20px; border-radius: 4px;">Accent Gold</div>
+                </div>
+                <p style="margin-top: 15px;"><strong>Typography:</strong> Montserrat Bold (headers), Open Sans (body), Fira Code (code)</p>
+            </div>
+
+            <h3>Graphics by Scene</h3>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Graphic Name</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>00:00:15</td>
+                        <td>"240 Workflows" Stat</td>
+                        <td>Animated counter</td>
+                        <td>Count up from 0 to 240, center screen</td>
+                    </tr>
+                    <tr>
+                        <td>00:00:20</td>
+                        <td>"The Pivot" Title Card</td>
+                        <td>Title overlay</td>
+                        <td>Wipe in from center, 3 seconds</td>
+                    </tr>
+                    <tr>
+                        <td>00:00:38</td>
+                        <td>Split Screen Labels</td>
+                        <td>Text labels</td>
+                        <td>"Static Rules" vs "Dynamic AI"</td>
+                    </tr>
+                    <tr>
+                        <td>00:00:45</td>
+                        <td>Breaking Chains Animation</td>
+                        <td>Motion graphic</td>
+                        <td>Iron chains breaking apart, 3D rendered</td>
+                    </tr>
+                    <tr>
+                        <td>00:04:30</td>
+                        <td>3D Printer Progress Bar</td>
+                        <td>Progress indicator</td>
+                        <td>0% to 100% with 3D print animation</td>
+                    </tr>
+                    <tr>
+                        <td>00:06:00</td>
+                        <td>"Consistency = Magic Shield"</td>
+                        <td>Animated quote</td>
+                        <td>Word-by-word reveal, inspirational</td>
+                    </tr>
+                    <tr>
+                        <td>00:08:35</td>
+                        <td>Speed Multiplier</td>
+                        <td>Animated stat</td>
+                        <td>"1000x Faster" with motion blur</td>
+                    </tr>
+                    <tr>
+                        <td>00:09:30</td>
+                        <td>LLM Feature Cards</td>
+                        <td>Info cards</td>
+                        <td>Claude, ChatGPT, DeepSeek, Gemini cards</td>
+                    </tr>
+                    <tr>
+                        <td>00:12:00</td>
+                        <td>"Internet Kill Switch" Label</td>
+                        <td>Title graphic</td>
+                        <td>Tech-noir aesthetic, glitch effect</td>
+                    </tr>
+                    <tr>
+                        <td>00:14:00</td>
+                        <td>"37+ Commits" Counter</td>
+                        <td>Animated stat</td>
+                        <td>Odometer effect, GitHub-style</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Smart Search Tab -->
+        <div id="search" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Smart Search - Find Artifacts Quickly</h2>
+
+            <div class="search-bar">
+                <input type="text" id="smartSearch" placeholder="Search by time, scene name, shot number, keyword..." onkeyup="smartSearch()">
+                <p style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em;">
+                    Try: "00:09:01", "LLM", "Shot 026", "golden microphone", "GitHub"
+                </p>
+            </div>
+
+            <div id="searchResults" style="margin-top: 30px;">
+                <p style="text-align: center; color: #7f8c8d; padding: 40px;">
+                    Enter a search term to find shots, B-roll, graphics, or scenes
+                </p>
+            </div>
+        </div>
+
+        <!-- Checklist Tab -->
+        <div id="checklist" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Production Checklist</h2>
+
+            <h3>Equipment Checklist</h3>
+            <div class="checklist-container">
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq1">
+                    <label for="eq1">Primary camera (4K capable)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq2">
+                    <label for="eq2">24mm wide lens</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq3">
+                    <label for="eq3">35mm standard lens</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq4">
+                    <label for="eq4">50mm portrait lens</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq5">
+                    <label for="eq5">100mm macro lens</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq6">
+                    <label for="eq6">Tripod with fluid head</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq7">
+                    <label for="eq7">Slider (3-foot)</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq8">
+                    <label for="eq8">Handheld stabilizer/gimbal</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq9">
+                    <label for="eq9">Drone for aerial shots</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="eq10">
+                    <label for="eq10">Screen capture software</label>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 25px;">Graphics Production Checklist</h3>
+            <div class="checklist-container">
+                <div class="checklist-item">
+                    <input type="checkbox" id="gfx1">
+                    <label for="gfx1">Create lower thirds templates</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gfx2">
+                    <label for="gfx2">Design and animate title cards</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gfx3">
+                    <label for="gfx3">Build LLM feature cards</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gfx4">
+                    <label for="gfx4">Create all stat/number graphics</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gfx5">
+                    <label for="gfx5">Design quote overlays</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="gfx6">
+                    <label for="gfx6">Build workflow diagrams</label>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 25px;">Post-Production Checklist</h3>
+            <div class="checklist-container">
+                <div class="checklist-item">
+                    <input type="checkbox" id="post1">
+                    <label for="post1">Color grade for consistency</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="post2">
+                    <label for="post2">Add visual effects for metaphors</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="post3">
+                    <label for="post3">Sync screen captures with audio</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="post4">
+                    <label for="post4">Add transitions between scenes</label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="post5">
+                    <label for="post5">Include chapter markers in timeline</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        function filterBRoll() {
+            const input = document.getElementById('brollSearch').value.toLowerCase();
+            // Search functionality would filter the B-roll items
+            console.log('Searching B-roll for:', input);
+        }
+
+        function filterByCategory(category) {
+            console.log('Filtering by category:', category);
+            event.target.classList.toggle('active');
+        }
+
+        function smartSearch() {
+            const input = document.getElementById('smartSearch').value.toLowerCase();
+            const resultsDiv = document.getElementById('searchResults');
+
+            if (input.length < 2) {
+                resultsDiv.innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 40px;">Enter at least 2 characters to search</p>';
+                return;
+            }
+
+            // Sample search results (in real implementation, this would search through all artifacts)
+            const sampleResults = [
+                { type: 'Shot', title: 'Shot 026 - Overhead table with tablets', time: '00:09:01', scene: 'Scene 9: Digital Feast' },
+                { type: 'Graphic', title: 'LLM Feature Cards', time: '00:09:30', scene: 'Scene 9: Digital Feast' },
+                { type: 'B-Roll', title: 'Claude interface/branding', time: '00:09:01-00:11:45', scene: 'Scene 9: Digital Feast' },
+                { type: 'Shot', title: 'Shot 011 - GitHub repository view', time: '00:01:30', scene: 'Scene 4: Clone Lab' },
+            ];
+
+            let html = '<h3>Search Results</h3>';
+            sampleResults.forEach(result => {
+                html += `
+                    <div class="timeline-item">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <strong>${result.type}:</strong> ${result.title}
+                                <div style="color: #7f8c8d; margin-top: 5px;">${result.scene}</div>
+                            </div>
+                            <div class="scene-time">${result.time}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+        }
+
+        // Save checklist state to localStorage
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            // Load saved state
+            const saved = localStorage.getItem(checkbox.id);
+            if (saved === 'true') {
+                checkbox.checked = true;
+            }
+
+            // Save state on change
+            checkbox.addEventListener('change', function() {
+                localStorage.setItem(this.id, this.checked);
+            });
+        });
+    </script>
+</body>
+</html>
