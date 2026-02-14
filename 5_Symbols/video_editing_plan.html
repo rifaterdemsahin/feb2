@@ -404,6 +404,87 @@
             display: none;
         }
 
+        /* Artifact Browser Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        .artifact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .artifact-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .artifact-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .artifact-category {
+            margin-bottom: 30px;
+        }
+
+        .artifact-category-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
@@ -576,6 +657,51 @@
                     </ul>
                 </div>
 
+                <div style="background: #f3e5f5; padding: 20px; border-radius: 8px; border-left: 4px solid #9c27b0; margin-top: 20px;">
+                    <h3 style="color: #7b1fa2; margin-bottom: 15px;">📦 Available Artifacts</h3>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                        Source: <strong>F:\\feb2\\3_Simulation\\DETAILED_FILE_INVENTORY.csv</strong>
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">🎥 Video Assets</div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                • 1 A-Roll footage<br>
+                                • 11 Screen captures<br>
+                                • 22 Animations (Manim + Remotion)
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">🎨 Graphics</div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                • 10 3D Objects<br>
+                                • 12 Anime frames<br>
+                                • 13 Backgrounds<br>
+                                • 15 Chapter markers<br>
+                                • 12 Diagrams<br>
+                                • 9 Company logos
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">🎵 Audio</div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                • 8 Music tracks<br>
+                                • 8 Sound effects<br>
+                                • Background ambience
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">📝 Documents</div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                • 2 Subtitle files (.srt)<br>
+                                • Transcript & EDL<br>
+                                • Storyboard & Shot list
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 15px; margin-right: 10px;" onclick="openArtifactBrowser()">📦 Browse All Artifacts</button>
+                </div>
+
                 <div class="timeline-visual" style="margin-top: 30px;">
                     <div class="timeline-header">
                         <span>Video Timeline Overview</span>
@@ -593,6 +719,75 @@
         </div>
     </div>
 
+    <!-- Artifact Browser Modal -->
+    <div id="artifactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="color: #2c3e50; margin: 0;">📦 Complete Artifact Inventory</h2>
+                <span class="close" onclick="closeArtifactBrowser()">&times;</span>
+            </div>
+            
+            <p style="color: #666; margin-bottom: 20px;">
+                <strong>Source:</strong> F:\\feb2\\3_Simulation\\DETAILED_FILE_INVENTORY.csv
+            </p>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🎥 Screen Captures (B-Roll)</div>
+                <div class="artifact-grid" id="broll-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">✨ Animations</div>
+                <div class="artifact-grid" id="animations-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🎨 3D Graphics</div>
+                <div class="artifact-grid" id="graphics3d-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🖼️ Anime Frames</div>
+                <div class="artifact-grid" id="anime-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🌄 Backgrounds</div>
+                <div class="artifact-grid" id="backgrounds-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">📑 Chapter Markers</div>
+                <div class="artifact-grid" id="chapters-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">📊 Diagrams</div>
+                <div class="artifact-grid" id="diagrams-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🏢 Company Logos</div>
+                <div class="artifact-grid" id="logos-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🎵 Music Tracks</div>
+                <div class="artifact-grid" id="music-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🔊 Sound Effects</div>
+                <div class="artifact-grid" id="sfx-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">💬 Subtitles</div>
+                <div class="artifact-grid" id="subtitles-list"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global state
         let currentTaskType = null;
@@ -605,6 +800,157 @@
             transitions: [],
             colorcorrection: [],
             finalreview: []
+        };
+
+        // Artifact inventory from F:\feb2\3_Simulation\DETAILED_FILE_INVENTORY.csv
+        const artifacts = {
+            aroll: [
+                'Replay 2026-02-09-06-59.mp4'
+            ],
+            broll: [
+                'screencapture10+Replay 2026-02-09-19-56.mp4',
+                'screencapture2_feb2.mov',
+                'screencapture2_feb2_v2.mov',
+                'screencapture3_feb2_Replay 2026-02-09-17-48.mp4',
+                'screencapture3_feb2_s3.mov',
+                'screencapture4_feb2_Replay 2026-02-09-18-01.mp4',
+                'screencapture5_feb2_Replay 2026-02-09-18-08.mp4',
+                'screencapture6_feb2_Replay 2026-02-09-18-18.mp4',
+                'screencapture7_feb2_Replay 2026-02-09-18-26.mp4',
+                'screencapture8_feb2_Replay 2026-02-09-18-31.mp4',
+                'screencapture9_Replay 2026-02-09-19-39.mp4'
+            ],
+            animations: [
+                'CICDPipelineAnimation.mp4',
+                'GitCloneAnimation.mp4',
+                'LLMFeatureCardsAnimation.mp4',
+                'NumberCounterAnimation.mp4',
+                'SpeedMultiplierAnimation.mp4',
+                'StaticVsDynamicAnimation.mp4',
+                '01_golden_mic_intro.mp4',
+                '02_pivot_decision.mp4',
+                '03_zombie_snails.mp4',
+                '04_statues_vs_mercury.mp4',
+                '05_breaking_chains.mp4',
+                '06_clone_lab.mp4',
+                '07_free_tier_tools.mp4',
+                '08_internet_kill_switch.mp4',
+                '09_llm_feast.mp4',
+                '10_claude_card.mp4',
+                '11_chatgpt_card.mp4',
+                '12_deepseek_card.mp4',
+                '13_gemini_card.mp4',
+                '14_n8n_bespoke.mp4',
+                '15_success_metrics.mp4',
+                '16_drone_city_finale.mp4'
+            ],
+            graphics_3d: [
+                '000_3d_ai_brain_feast_20260213_v1_texture.png',
+                '000_3d_automation_gear_20260213_v1_texture.png',
+                '000_3d_compass_pivot_20260213_v1_texture.png',
+                '000_3d_free_tier_toolbox_20260213_v1_texture.png',
+                '000_3d_futuristic_city_20260213_v1_texture.png',
+                '000_3d_golden_microphone_20260213_v1_texture.png',
+                '000_3d_internet_kill_switch_20260213_v1_texture.png',
+                '000_3d_laptop_terminal_20260213_v1_texture.png',
+                '000_3d_mercury_liquid_figure_20260213_v1_texture.png',
+                '000_3d_rocket_cicd_20260213_v1_texture.png'
+            ],
+            graphics_anime: [
+                '001_anime_frame_1_opening_the_heavy_mic_20260213_v1.png',
+                '002_anime_frame_2_the_pivot_20260213_v1.png',
+                '003_anime_frame_3_statues_vs_mercury_20260213_v1.png',
+                '004_anime_frame_4_the_clone_lab_20260213_v1.png',
+                '005_anime_frame_5_the_evolution_20260213_v1.png',
+                '006_anime_frame_6_the_nursery_20260213_v1.png',
+                '007_anime_frame_7_the_crystal_ball_20260213_v1.png',
+                '008_anime_frame_8_the_engine_room_20260213_v1.png',
+                '009_anime_frame_9_the_digital_feast_20260213_v1.png',
+                '010_anime_frame_10_the_power_station_20260213_v1.png',
+                '011_anime_frame_11_the_tool_shed_20260213_v1.png',
+                '012_anime_frame_12_the_balcony_20260213_v1.png'
+            ],
+            graphics_backgrounds: [
+                'bg_01_heavy_mic_20260213_203750.png',
+                'bg_02_pivot_20260213_203750.png',
+                'bg_03a_statues_20260213_203750.png',
+                'bg_03b_mercury_20260213_203750.png',
+                'bg_04_clone_lab_20260213_203750.png',
+                'bg_05_evolution_20260213_203750.png',
+                'bg_06_nursery_20260213_203750.png',
+                'bg_07_crystal_ball_20260213_203750.png',
+                'bg_08_engine_room_20260213_203750.png',
+                'bg_09_digital_feast_20260213_203750.png',
+                'bg_10_power_station_20260213_203750.png',
+                'bg_11_tool_shed_20260213_203750.png',
+                'bg_12_balcony_20260213_203750.png'
+            ],
+            graphics_chapters: [
+                'chapter_01_introduction.png',
+                'chapter_02_background.png',
+                'chapter_03_core_concepts.png',
+                'chapter_04_workflow_architecture.png',
+                'chapter_05_implementation.png',
+                'chapter_06_automation_strategies.png',
+                'chapter_07_integration.png',
+                'chapter_08_monitoring_and_analytics.png',
+                'chapter_09_scaling_challenges.png',
+                'chapter_10_future_directions.png',
+                'chapter_11_case_studies.png',
+                'chapter_12_advanced_topics.png',
+                'chapter_13_best_practices.png',
+                'chapter_14_troubleshooting.png',
+                'chapter_15_conclusion.png'
+            ],
+            graphics_diagrams: [
+                'dg_01_golden_mic_hierarchy_20260213_211013.png',
+                'dg_02_240_workflow_architecture_20260213_211013.png',
+                'dg_03_static_vs_dynamic_flow_20260213_211013.png',
+                'dg_04_git_clone_sequence_20260213_211013.png',
+                'dg_05_tool_evolution_timeline_20260213_211013.png',
+                'dg_06_internet_kill_switch_flow_20260213_211013.png',
+                'dg_07_tech_platform_comparison_20260213_211013.png',
+                'dg_08_speed_benchmark_chart_20260213_211013.png',
+                'dg_09_llm_comparison_matrix_20260213_211013.png',
+                'dg_10_n8n_automation_flow_20260213_211013.png',
+                'dg_11_cicd_pipeline_diagram_20260213_211013.png',
+                'dg_12_journey_roadmap_20260213_211013.png'
+            ],
+            graphics_logos: [
+                '000_icon_anthropic_logo_v1.png',
+                '000_icon_cursor_ai_logo_v1.png',
+                '000_icon_deepseek_logo_v1.png',
+                '000_icon_family_shield_v1.png',
+                '000_icon_github_logo_v1.png',
+                '000_icon_google_gemini_logo_v1.png',
+                '000_icon_n8n_logo_v1.png',
+                '000_icon_openai_logo_v1.png',
+                '000_icon_vscode_logo_v1.png'
+            ],
+            music_tracks: [
+                'track_01_opening_theme.wav',
+                'track_02_transformation.wav',
+                'track_03_innovation.wav',
+                'track_04_tech_ecosystem.wav',
+                'track_05_the_feast.wav',
+                'ambient_digital_space.wav',
+                'ambient_futuristic_city.wav',
+                'ambient_tech_office.wav'
+            ],
+            sound_effects: [
+                'sfx_error_beep.wav',
+                'sfx_impact_hit.wav',
+                'sfx_riser_buildup.wav',
+                'sfx_success_chime.wav',
+                'sfx_tech_beep.wav',
+                'sfx_typing_sequence.wav',
+                'sfx_ui_click.wav',
+                'sfx_whoosh_transition.wav'
+            ],
+            subtitles: [
+                'source_subtitle.srt',
+                'tuesday_3_blue memory palace green aroll background red screen captire.srt'
+            ]
         };
         let timerInterval = null;
         let timerSeconds = 0;
@@ -741,6 +1087,7 @@
                             <div class="placement-info">
                                 <div class="placement-time">${item.startTime} - ${item.endTime}</div>
                                 <div class="placement-desc">${item.description}</div>
+                                ${item.artifactFile ? `<div style="font-size: 0.9em; color: #667eea; margin-top: 5px; font-weight: bold;">📁 ${item.artifactFile}</div>` : ''}
                                 ${item.notes ? `<div style="font-size: 0.85em; color: #999; margin-top: 5px;">📝 ${item.notes}</div>` : ''}
                             </div>
                             <div class="placement-actions">
@@ -766,6 +1113,7 @@
                             <label>Description</label>
                             <input type="text" id="description" placeholder="Describe what goes here..." required>
                         </div>
+                        ${getArtifactSelector(taskType)}
                         <div class="form-group">
                             <label>Notes (Optional)</label>
                             <textarea id="notes" placeholder="Additional notes, file names, settings, etc." rows="3"></textarea>
@@ -874,14 +1222,197 @@
             `).join('');
         }
 
+        // Get artifact selector HTML based on task type
+        function getArtifactSelector(taskType) {
+            const selectors = {
+                broll: `
+                    <div class="form-group">
+                        <label>B-Roll Footage</label>
+                        <select id="artifactFile">
+                            <option value="">-- Select Screen Capture --</option>
+                            ${artifacts.broll.map(f => `<option value="${f}">${f}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Or Animation</label>
+                        <select id="artifactAnimation">
+                            <option value="">-- Select Animation --</option>
+                            ${artifacts.animations.map(f => `<option value="${f}">${f}</option>`).join('')}
+                        </select>
+                    </div>
+                `,
+                graphics: `
+                    <div class="form-group">
+                        <label>Graphic Type</label>
+                        <select id="graphicType" onchange="updateGraphicOptions()">
+                            <option value="">-- Select Type --</option>
+                            <option value="3d">3D Objects</option>
+                            <option value="anime">Anime Frames</option>
+                            <option value="backgrounds">Backgrounds</option>
+                            <option value="chapters">Chapter Markers</option>
+                            <option value="diagrams">Diagrams</option>
+                            <option value="logos">Logos/Icons</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="graphicFileContainer" style="display: none;">
+                        <label>Graphic File</label>
+                        <select id="artifactFile">
+                            <option value="">-- Select File --</option>
+                        </select>
+                    </div>
+                `,
+                music: `
+                    <div class="form-group">
+                        <label>Audio Type</label>
+                        <select id="audioType" onchange="updateAudioOptions()">
+                            <option value="">-- Select Type --</option>
+                            <option value="tracks">Music Tracks</option>
+                            <option value="sfx">Sound Effects</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="audioFileContainer" style="display: none;">
+                        <label>Audio File</label>
+                        <select id="artifactFile">
+                            <option value="">-- Select File --</option>
+                        </select>
+                    </div>
+                `,
+                subtitles: `
+                    <div class="form-group">
+                        <label>Subtitle File</label>
+                        <select id="artifactFile">
+                            <option value="">-- Select Subtitle File --</option>
+                            ${artifacts.subtitles.map(f => `<option value="${f}">${f}</option>`).join('')}
+                        </select>
+                    </div>
+                `
+            };
+
+            return selectors[taskType] || '';
+        }
+
+        // Update graphic options based on type
+        function updateGraphicOptions() {
+            const graphicType = document.getElementById('graphicType').value;
+            const container = document.getElementById('graphicFileContainer');
+            const select = document.getElementById('artifactFile');
+            
+            if (!graphicType) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            
+            const fileMap = {
+                '3d': artifacts.graphics_3d,
+                'anime': artifacts.graphics_anime,
+                'backgrounds': artifacts.graphics_backgrounds,
+                'chapters': artifacts.graphics_chapters,
+                'diagrams': artifacts.graphics_diagrams,
+                'logos': artifacts.graphics_logos
+            };
+            
+            const files = fileMap[graphicType] || [];
+            select.innerHTML = '<option value="">-- Select File --</option>' + 
+                files.map(f => `<option value="${f}">${f}</option>`).join('');
+        }
+
+        // Update audio options based on type
+        function updateAudioOptions() {
+            const audioType = document.getElementById('audioType').value;
+            const container = document.getElementById('audioFileContainer');
+            const select = document.getElementById('artifactFile');
+            
+            if (!audioType) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            
+            const fileMap = {
+                'tracks': artifacts.music_tracks,
+                'sfx': artifacts.sound_effects
+            };
+            
+            const files = fileMap[audioType] || [];
+            select.innerHTML = '<option value="">-- Select File --</option>' + 
+                files.map(f => `<option value="${f}">${f}</option>`).join('');
+        }
+
+        // Open artifact browser modal
+        function openArtifactBrowser() {
+            const modal = document.getElementById('artifactModal');
+            modal.style.display = 'block';
+            
+            // Populate artifact lists
+            populateArtifactList('broll-list', artifacts.broll);
+            populateArtifactList('animations-list', artifacts.animations);
+            populateArtifactList('graphics3d-list', artifacts.graphics_3d);
+            populateArtifactList('anime-list', artifacts.graphics_anime);
+            populateArtifactList('backgrounds-list', artifacts.graphics_backgrounds);
+            populateArtifactList('chapters-list', artifacts.graphics_chapters);
+            populateArtifactList('diagrams-list', artifacts.graphics_diagrams);
+            populateArtifactList('logos-list', artifacts.graphics_logos);
+            populateArtifactList('music-list', artifacts.music_tracks);
+            populateArtifactList('sfx-list', artifacts.sound_effects);
+            populateArtifactList('subtitles-list', artifacts.subtitles);
+        }
+
+        // Close artifact browser modal
+        function closeArtifactBrowser() {
+            document.getElementById('artifactModal').style.display = 'none';
+        }
+
+        // Populate artifact list in modal
+        function populateArtifactList(containerId, fileList) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = fileList.map(file => `
+                <div class="artifact-card">
+                    <div style="font-weight: bold; color: #667eea; margin-bottom: 5px; word-break: break-word;">
+                        📄 ${file}
+                    </div>
+                    <div style="font-size: 0.85em; color: #999;">
+                        ${getFileExtension(file).toUpperCase()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get file extension
+        function getFileExtension(filename) {
+            return filename.split('.').pop();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('artifactModal');
+            if (event.target == modal) {
+                closeArtifactBrowser();
+            }
+        }
+
         // Add new item
         function addItem(event, taskType) {
             event.preventDefault();
+            
+            // Get artifact file if selected
+            let artifactFile = '';
+            const artifactFileEl = document.getElementById('artifactFile');
+            const artifactAnimationEl = document.getElementById('artifactAnimation');
+            
+            if (artifactFileEl && artifactFileEl.value) {
+                artifactFile = artifactFileEl.value;
+            } else if (artifactAnimationEl && artifactAnimationEl.value) {
+                artifactFile = artifactAnimationEl.value;
+            }
             
             const item = {
                 startTime: document.getElementById('startTime').value,
                 endTime: document.getElementById('endTime').value,
                 description: document.getElementById('description').value,
+                artifactFile: artifactFile,
                 notes: document.getElementById('notes').value,
                 completed: false,
                 addedAt: new Date().toISOString()
