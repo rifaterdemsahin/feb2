@@ -485,6 +485,20 @@
             font-weight: bold;
         }
 
+        .copy-btn {
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            opacity: 0.9;
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
@@ -776,6 +790,175 @@
     </div>
 
     <script>
+        // Copy to clipboard function
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.innerHTML;
+                const originalBg = button.style.background;
+                button.innerHTML = '✓ Copied!';
+                button.style.background = '#4caf50';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = originalBg;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                button.innerHTML = '✗ Failed';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+
+        // Script snippets and timecodes for artifacts
+        const artifactMetadata = {
+            // B-Roll Screen Captures
+            'screencapture10+Replay 2026-02-09-19-56.mp4': { snippet: 'GitHub commit history', start: '00:14:00', end: '00:15:30' },
+            'screencapture2_feb2.mov': { snippet: 'Terminal git clone', start: '00:00:48', end: '00:01:30' },
+            'screencapture2_feb2_v2.mov': { snippet: 'Terminal git clone', start: '00:00:48', end: '00:01:30' },
+            'screencapture3_feb2_Replay 2026-02-09-17-48.mp4': { snippet: 'GitHub repository view', start: '00:01:30', end: '00:02:00' },
+            'screencapture3_feb2_s3.mov': { snippet: 'GitHub repository view', start: '00:01:30', end: '00:02:00' },
+            'screencapture4_feb2_Replay 2026-02-09-18-01.mp4': { snippet: 'VS Code setup', start: '00:02:00', end: '00:03:00' },
+            'screencapture5_feb2_Replay 2026-02-09-18-08.mp4': { snippet: 'Cursor AI demo', start: '00:03:00', end: '00:03:52' },
+            'screencapture6_feb2_Replay 2026-02-09-18-18.mp4': { snippet: 'n8n workflow interface', start: '00:12:15', end: '00:13:00' },
+            'screencapture7_feb2_Replay 2026-02-09-18-26.mp4': { snippet: 'GitHub Pages UI', start: '00:13:00', end: '00:13:15' },
+            'screencapture8_feb2_Replay 2026-02-09-18-31.mp4': { snippet: 'CI/CD pipeline', start: '00:15:30', end: '00:16:45' },
+            'screencapture9_Replay 2026-02-09-19-39.mp4': { snippet: 'Logs and metrics', start: '00:16:45', end: '00:17:24' },
+
+            // Animations - Manim
+            'CICDPipelineAnimation.mp4': { snippet: 'CI/CD pipeline deployment', start: '00:15:30', end: '00:16:45' },
+            'GitCloneAnimation.mp4': { snippet: 'Clone Lab repository', start: '00:00:48', end: '00:01:30' },
+            'LLMFeatureCardsAnimation.mp4': { snippet: 'digital feast models', start: '00:09:01', end: '00:11:00' },
+            'NumberCounterAnimation.mp4': { snippet: 'broken 37 times', start: '00:14:00', end: '00:15:30' },
+            'SpeedMultiplierAnimation.mp4': { snippet: 'spinning clock 1000x', start: '00:08:26', end: '00:08:55' },
+            'StaticVsDynamicAnimation.mp4': { snippet: 'statues vs mercury', start: '00:00:35', end: '00:00:45' },
+
+            // Animations - Remotion Scenes
+            '01_golden_mic_intro.mp4': { snippet: 'massive golden microphone', start: '00:00:00', end: '00:00:08' },
+            '02_pivot_decision.mp4': { snippet: 'made a decision', start: '00:00:10', end: '00:00:30' },
+            '03_zombie_snails.mp4': { snippet: 'zombie snails race', start: '00:00:00', end: '00:00:08' },
+            '04_statues_vs_mercury.mp4': { snippet: 'frozen stone statues', start: '00:00:35', end: '00:00:45' },
+            '05_breaking_chains.mp4': { snippet: 'breaking iron chains', start: '00:00:35', end: '00:00:48' },
+            '06_clone_lab.mp4': { snippet: 'Clone Lab repository', start: '00:00:48', end: '00:02:00' },
+            '07_free_tier_tools.mp4': { snippet: 'zero capital standard', start: '00:03:52', end: '00:05:20' },
+            '08_internet_kill_switch.mp4': { snippet: 'giant red off-lever', start: '00:05:50', end: '00:06:30' },
+            '09_llm_feast.mp4': { snippet: 'serving digital feast', start: '00:09:01', end: '00:11:00' },
+            '10_claude_card.mp4': { snippet: 'Claude reasoning layer', start: '00:09:30', end: '00:10:00' },
+            '11_chatgpt_card.mp4': { snippet: 'ChatGPT versatile leader', start: '00:10:00', end: '00:10:20' },
+            '12_deepseek_card.mp4': { snippet: 'DeepSeek coding disruptor', start: '00:10:20', end: '00:10:40' },
+            '13_gemini_card.mp4': { snippet: 'Gemini versatile platform', start: '00:10:40', end: '00:11:00' },
+            '14_n8n_bespoke.mp4': { snippet: 'bespoke implementation n8n', start: '00:12:15', end: '00:13:15' },
+            '15_success_metrics.mp4': { snippet: 'success metrics compliance', start: '00:14:00', end: '00:17:24' },
+            '16_drone_city_finale.mp4': { snippet: 'balcony overlooking drone', start: '00:17:24', end: '00:18:30' },
+
+            // 3D Graphics
+            '000_3d_ai_brain_feast_20260213_v1_texture.png': { snippet: 'serving digital feast', start: '00:09:01', end: '00:11:00' },
+            '000_3d_automation_gear_20260213_v1_texture.png': { snippet: 'CI/CD pipeline deployment', start: '00:15:30', end: '00:16:45' },
+            '000_3d_compass_pivot_20260213_v1_texture.png': { snippet: 'made a decision', start: '00:00:10', end: '00:00:30' },
+            '000_3d_free_tier_toolbox_20260213_v1_texture.png': { snippet: 'zero capital standard', start: '00:03:52', end: '00:05:20' },
+            '000_3d_futuristic_city_20260213_v1_texture.png': { snippet: 'balcony overlooking drone', start: '00:17:24', end: '00:18:30' },
+            '000_3d_golden_microphone_20260213_v1_texture.png': { snippet: 'massive golden microphone', start: '00:00:00', end: '00:00:08' },
+            '000_3d_internet_kill_switch_20260213_v1_texture.png': { snippet: 'giant red off-lever', start: '00:05:50', end: '00:06:30' },
+            '000_3d_laptop_terminal_20260213_v1_texture.png': { snippet: 'Clone Lab repository', start: '00:00:48', end: '00:02:00' },
+            '000_3d_mercury_liquid_figure_20260213_v1_texture.png': { snippet: 'liquid mercury character', start: '00:00:40', end: '00:00:45' },
+            '000_3d_rocket_cicd_20260213_v1_texture.png': { snippet: 'CI/CD pipeline deployment', start: '00:15:30', end: '00:16:45' },
+
+            // Anime Frames
+            '001_anime_frame_1_opening_the_heavy_mic_20260213_v1.png': { snippet: 'massive golden microphone', start: '00:00:00', end: '00:00:08' },
+            '002_anime_frame_2_the_pivot_20260213_v1.png': { snippet: 'made a decision', start: '00:00:10', end: '00:00:30' },
+            '003_anime_frame_3_statues_vs_mercury_20260213_v1.png': { snippet: 'frozen stone statues', start: '00:00:35', end: '00:00:48' },
+            '004_anime_frame_4_the_clone_lab_20260213_v1.png': { snippet: 'Clone Lab repository', start: '00:00:48', end: '00:02:00' },
+            '005_anime_frame_5_the_evolution_20260213_v1.png': { snippet: 'evolution swap between', start: '00:03:52', end: '00:05:20' },
+            '006_anime_frame_6_the_nursery_20260213_v1.png': { snippet: 'GitHub nightlight consistency', start: '00:05:50', end: '00:06:30' },
+            '007_anime_frame_7_the_crystal_ball_20260213_v1.png': { snippet: 'Tech logos Alexa', start: '00:06:36', end: '00:08:00' },
+            '008_anime_frame_8_the_engine_room_20260213_v1.png': { snippet: 'spinning clock 1000x', start: '00:08:26', end: '00:08:55' },
+            '009_anime_frame_9_the_digital_feast_20260213_v1.png': { snippet: 'serving digital feast', start: '00:09:01', end: '00:11:00' },
+            '010_anime_frame_10_the_power_station_20260213_v1.png': { snippet: 'Lightning in bottle', start: '00:11:45', end: '00:12:15' },
+            '011_anime_frame_11_the_tool_shed_20260213_v1.png': { snippet: 'Vibrating toolbox GitHub', start: '00:13:15', end: '00:17:24' },
+            '012_anime_frame_12_the_balcony_20260213_v1.png': { snippet: 'balcony overlooking drone', start: '00:17:24', end: '00:18:30' },
+
+            // Backgrounds
+            'bg_01_heavy_mic_20260213_203750.png': { snippet: 'massive golden microphone', start: '00:00:00', end: '00:00:08' },
+            'bg_02_pivot_20260213_203750.png': { snippet: 'made a decision', start: '00:00:10', end: '00:00:30' },
+            'bg_03a_statues_20260213_203750.png': { snippet: 'frozen stone statues', start: '00:00:35', end: '00:00:45' },
+            'bg_03b_mercury_20260213_203750.png': { snippet: 'liquid mercury character', start: '00:00:40', end: '00:00:45' },
+            'bg_04_clone_lab_20260213_203750.png': { snippet: 'Clone Lab repository', start: '00:00:48', end: '00:02:00' },
+            'bg_05_evolution_20260213_203750.png': { snippet: 'evolution swap between', start: '00:03:52', end: '00:05:20' },
+            'bg_06_nursery_20260213_203750.png': { snippet: 'GitHub nightlight consistency', start: '00:05:50', end: '00:06:30' },
+            'bg_07_crystal_ball_20260213_203750.png': { snippet: 'Tech logos Alexa', start: '00:06:36', end: '00:08:00' },
+            'bg_08_engine_room_20260213_203750.png': { snippet: 'spinning clock 1000x', start: '00:08:26', end: '00:08:55' },
+            'bg_09_digital_feast_20260213_203750.png': { snippet: 'serving digital feast', start: '00:09:01', end: '00:11:00' },
+            'bg_10_power_station_20260213_203750.png': { snippet: 'Lightning in bottle', start: '00:11:45', end: '00:12:15' },
+            'bg_11_tool_shed_20260213_203750.png': { snippet: 'Vibrating toolbox GitHub', start: '00:13:15', end: '00:17:24' },
+            'bg_12_balcony_20260213_203750.png': { snippet: 'balcony overlooking drone', start: '00:17:24', end: '00:18:30' },
+
+            // Chapter Markers
+            'chapter_01_introduction.png': { snippet: 'massive golden microphone', start: '00:00:00', end: '00:00:08' },
+            'chapter_02_background.png': { snippet: 'made a decision', start: '00:00:10', end: '00:00:30' },
+            'chapter_03_core_concepts.png': { snippet: 'frozen stone statues', start: '00:00:35', end: '00:00:48' },
+            'chapter_04_workflow_architecture.png': { snippet: 'Clone Lab repository', start: '00:00:48', end: '00:02:00' },
+            'chapter_05_implementation.png': { snippet: 'VS Code setup', start: '00:02:00', end: '00:03:52' },
+            'chapter_06_automation_strategies.png': { snippet: 'evolution swap between', start: '00:03:52', end: '00:05:50' },
+            'chapter_07_integration.png': { snippet: 'GitHub nightlight consistency', start: '00:05:50', end: '00:06:36' },
+            'chapter_08_monitoring_and_analytics.png': { snippet: 'Tech logos Alexa', start: '00:06:36', end: '00:08:26' },
+            'chapter_09_scaling_challenges.png': { snippet: 'spinning clock 1000x', start: '00:08:26', end: '00:09:01' },
+            'chapter_10_future_directions.png': { snippet: 'serving digital feast', start: '00:09:01', end: '00:11:45' },
+            'chapter_11_case_studies.png': { snippet: 'bespoke implementation n8n', start: '00:11:45', end: '00:13:15' },
+            'chapter_12_advanced_topics.png': { snippet: 'Vibrating toolbox GitHub', start: '00:13:15', end: '00:16:45' },
+            'chapter_13_best_practices.png': { snippet: 'success metrics compliance', start: '00:16:45', end: '00:17:24' },
+            'chapter_14_troubleshooting.png': { snippet: 'broken 37 times', start: '00:14:00', end: '00:15:30' },
+            'chapter_15_conclusion.png': { snippet: 'balcony overlooking drone', start: '00:17:24', end: '00:18:30' },
+
+            // Diagrams
+            'dg_01_golden_mic_hierarchy_20260213_211013.png': { snippet: 'massive golden microphone', start: '00:00:00', end: '00:00:08' },
+            'dg_02_240_workflow_architecture_20260213_211013.png': { snippet: 'complex engineering concepts', start: '00:00:10', end: '00:00:30' },
+            'dg_03_static_vs_dynamic_flow_20260213_211013.png': { snippet: 'statues vs mercury', start: '00:00:35', end: '00:00:48' },
+            'dg_04_git_clone_sequence_20260213_211013.png': { snippet: 'Terminal git clone', start: '00:00:48', end: '00:01:30' },
+            'dg_05_tool_evolution_timeline_20260213_211013.png': { snippet: 'evolution swap between', start: '00:03:52', end: '00:05:20' },
+            'dg_06_internet_kill_switch_flow_20260213_211013.png': { snippet: 'giant red off-lever', start: '00:05:50', end: '00:06:30' },
+            'dg_07_tech_platform_comparison_20260213_211013.png': { snippet: 'Tech logos Alexa', start: '00:06:36', end: '00:08:00' },
+            'dg_08_speed_benchmark_chart_20260213_211013.png': { snippet: 'spinning clock 1000x', start: '00:08:26', end: '00:08:55' },
+            'dg_09_llm_comparison_matrix_20260213_211013.png': { snippet: 'serving digital feast', start: '00:09:01', end: '00:11:00' },
+            'dg_10_n8n_automation_flow_20260213_211013.png': { snippet: 'bespoke implementation n8n', start: '00:12:15', end: '00:13:15' },
+            'dg_11_cicd_pipeline_diagram_20260213_211013.png': { snippet: 'CI/CD pipeline deployment', start: '00:15:30', end: '00:16:45' },
+            'dg_12_journey_roadmap_20260213_211013.png': { snippet: 'Take the assessment', start: '00:17:24', end: '00:18:30' },
+
+            // Logos
+            '000_icon_anthropic_logo_v1.png': { snippet: 'Claude reasoning layer', start: '00:09:30', end: '00:10:00' },
+            '000_icon_cursor_ai_logo_v1.png': { snippet: 'Cursor AI demo', start: '00:03:00', end: '00:03:52' },
+            '000_icon_deepseek_logo_v1.png': { snippet: 'DeepSeek coding disruptor', start: '00:10:20', end: '00:10:40' },
+            '000_icon_family_shield_v1.png': { snippet: 'parent kids consistency', start: '00:05:50', end: '00:06:30' },
+            '000_icon_github_logo_v1.png': { snippet: 'GitHub repository view', start: '00:01:30', end: '00:02:00' },
+            '000_icon_google_gemini_logo_v1.png': { snippet: 'Gemini versatile platform', start: '00:10:40', end: '00:11:00' },
+            '000_icon_n8n_logo_v1.png': { snippet: 'n8n workflow interface', start: '00:12:15', end: '00:13:00' },
+            '000_icon_openai_logo_v1.png': { snippet: 'ChatGPT versatile leader', start: '00:10:00', end: '00:10:20' },
+            '000_icon_vscode_logo_v1.png': { snippet: 'VS Code setup', start: '00:02:00', end: '00:03:00' },
+
+            // Music tracks
+            'track_01_opening_theme.wav': { snippet: 'massive golden microphone', start: '00:00:00', end: '00:01:30' },
+            'track_02_transformation.wav': { snippet: 'made a decision', start: '00:00:10', end: '00:03:52' },
+            'track_03_innovation.wav': { snippet: 'Clone Lab repository', start: '00:00:48', end: '00:05:50' },
+            'track_04_tech_ecosystem.wav': { snippet: 'serving digital feast', start: '00:09:01', end: '00:13:15' },
+            'track_05_the_feast.wav': { snippet: 'serving digital feast', start: '00:09:01', end: '00:11:00' },
+            'ambient_digital_space.wav': { snippet: 'bespoke implementation n8n', start: '00:11:45', end: '00:17:24' },
+            'ambient_futuristic_city.wav': { snippet: 'balcony overlooking drone', start: '00:17:24', end: '00:18:30' },
+            'ambient_tech_office.wav': { snippet: 'Terminal git clone', start: '00:00:48', end: '00:05:50' },
+
+            // Sound effects
+            'sfx_error_beep.wav': { snippet: 'broken 37 times', start: '00:14:00', end: '00:14:05' },
+            'sfx_impact_hit.wav': { snippet: 'breaking iron chains', start: '00:00:45', end: '00:00:48' },
+            'sfx_riser_buildup.wav': { snippet: 'spinning clock buildup', start: '00:08:26', end: '00:08:40' },
+            'sfx_success_chime.wav': { snippet: 'success metrics compliance', start: '00:16:45', end: '00:16:50' },
+            'sfx_tech_beep.wav': { snippet: 'Terminal git clone', start: '00:00:48', end: '00:01:30' },
+            'sfx_typing_sequence.wav': { snippet: 'VS Code setup', start: '00:02:00', end: '00:03:00' },
+            'sfx_ui_click.wav': { snippet: 'GitHub Pages UI', start: '00:13:00', end: '00:13:15' },
+            'sfx_whoosh_transition.wav': { snippet: 'chapter transitions throughout', start: '00:00:00', end: '00:18:30' },
+
+            // Subtitles
+            'source_subtitle.srt': { snippet: 'Full transcript synced', start: '00:00:00', end: '00:18:30' },
+            'tuesday_3_blue memory palace green aroll background red screen captire.srt': { snippet: 'Color-coded alternative track', start: '00:00:00', end: '00:18:30' }
+        };
+
         // Global state
         let currentTaskType = null;
 
@@ -1046,27 +1229,74 @@
                     <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
                         <h3 style="color: #2c3e50; margin-bottom: 15px;">🎥 Screen Captures (${artifacts.broll.length} files)</h3>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 25px;">
-                            ${artifacts.broll.map(file => `
-                                <div style="background: white; padding: 12px; border-radius: 6px; border: 2px solid #e0e0e0; transition: all 0.3s;">
-                                    <div style="font-size: 0.9em; color: #667eea; font-weight: bold; margin-bottom: 4px;">🎬 ${file}</div>
-                                    <div style="font-size: 0.85em; color: #999;">${getFileExtension(file).toUpperCase()}</div>
+                            ${artifacts.broll.map(file => {
+                                const meta = artifactMetadata[file] || {};
+                                return `
+                                <div style="background: white; padding: 12px; border-radius: 6px; border: 2px solid #e0e0e0;">
+                                    <div style="font-size: 0.9em; color: #667eea; font-weight: bold; margin-bottom: 8px; word-break: break-word;">🎬 ${file}</div>
+                                    <div style="font-size: 0.85em; color: #999; margin-bottom: 8px;">${getFileExtension(file).toUpperCase()}</div>
+                                    ${meta.snippet ? `
+                                        <div style="font-size: 0.8em; color: #666; font-style: italic; margin-bottom: 8px; padding: 4px; background: #f8f9fa; border-radius: 3px;">📝 "${meta.snippet}"</div>
+                                        <div style="font-size: 0.75em; color: #999; margin-bottom: 8px;">⏱️ ${meta.start} → ${meta.end}</div>
+                                    ` : ''}
+                                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                        <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.7em; padding: 4px 8px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">📋 File</button>
+                                        ${meta.snippet ? `
+                                            <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.7em; padding: 4px 8px; background: #9c27b0; color: white; border: none; border-radius: 4px; cursor: pointer;">📝 Script</button>
+                                            <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.7em; padding: 4px 8px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">⏱️ Start</button>
+                                            <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.7em; padding: 4px 8px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer;">⏱️ End</button>
+                                        ` : ''}
+                                    </div>
                                 </div>
-                            `).join('')}
+                            `;
+                            }).join('')}
                         </div>
                         
                         <h3 style="color: #2c3e50; margin-bottom: 15px; margin-top: 30px;">✨ Animations (${artifacts.animations.length} files)</h3>
                         <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 2px solid #ffc107;">
                             <div style="font-weight: bold; color: #856404; margin-bottom: 8px;">📐 Manim Animations (6 files)</div>
-                            ${['CICDPipelineAnimation.mp4', 'GitCloneAnimation.mp4', 'LLMFeatureCardsAnimation.mp4', 'NumberCounterAnimation.mp4', 'SpeedMultiplierAnimation.mp4', 'StaticVsDynamicAnimation.mp4'].map(file => `
-                                <div style="font-size: 0.9em; color: #666; padding: 4px 0;">• ${file}</div>
-                            `).join('')}
+                            ${['CICDPipelineAnimation.mp4', 'GitCloneAnimation.mp4', 'LLMFeatureCardsAnimation.mp4', 'NumberCounterAnimation.mp4', 'SpeedMultiplierAnimation.mp4', 'StaticVsDynamicAnimation.mp4'].map(file => {
+                                const meta = artifactMetadata[file] || {};
+                                return `
+                                <div style="background: white; padding: 10px; border-radius: 4px; margin-bottom: 8px;">
+                                    <div style="font-size: 0.9em; color: #856404; font-weight: bold; margin-bottom: 4px;">• ${file}</div>
+                                    ${meta.snippet ? `
+                                        <div style="font-size: 0.75em; color: #666; font-style: italic; margin-bottom: 6px;">📝 "${meta.snippet}" | ⏱️ ${meta.start} → ${meta.end}</div>
+                                    ` : ''}
+                                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                        <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 File</button>
+                                        ${meta.snippet ? `
+                                            <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝 Script</button>
+                                            <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ Start</button>
+                                            <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ End</button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                            }).join('')}
                         </div>
                         <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; border: 2px solid #4caf50;">
                             <div style="font-weight: bold; color: #2e7d32; margin-bottom: 8px;">🎭 Remotion Scene Animations (16 files)</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                ${artifacts.animations.filter(f => f.includes('_')).map(file => `
-                                    <div style="font-size: 0.85em; color: #666;">• ${file}</div>
-                                `).join('')}
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                                ${artifacts.animations.filter(f => f.includes('_')).map(file => {
+                                    const meta = artifactMetadata[file] || {};
+                                    return `
+                                    <div style="background: white; padding: 8px; border-radius: 4px;">
+                                        <div style="font-size: 0.85em; color: #2e7d32; font-weight: bold; margin-bottom: 4px;">• ${file}</div>
+                                        ${meta.snippet ? `
+                                            <div style="font-size: 0.75em; color: #666; font-style: italic; margin-bottom: 6px;">📝 "${meta.snippet}" | ⏱️ ${meta.start} → ${meta.end}</div>
+                                        ` : ''}
+                                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                            <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 File</button>
+                                            ${meta.snippet ? `
+                                                <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝 Script</button>
+                                                <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ Start</button>
+                                                <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ End</button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `;
+                                }).join('')}
                             </div>
                         </div>
                     </div>
@@ -1086,38 +1316,109 @@
                         <h3 style="color: #2c3e50; margin-bottom: 15px;">🎨 3D Objects (${artifacts.graphics_3d.length} files)</h3>
                         <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
                             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
-                                ${artifacts.graphics_3d.map(file => `
-                                    <div style="font-size: 0.85em; color: #1976d2;">• ${file.replace('000_3d_', '').replace('_20260213_v1_texture.png', '')}</div>
-                                `).join('')}
+                                ${artifacts.graphics_3d.map(file => {
+                                    const meta = artifactMetadata[file] || {};
+                                    const cleanName = file.replace('000_3d_', '').replace('_20260213_v1_texture.png', '').replace(/_/g, ' ');
+                                    return `
+                                    <div style="background: white; padding: 10px; border-radius: 4px;">
+                                        <div style="font-size: 0.85em; color: #1976d2; font-weight: bold; margin-bottom: 4px;">• ${cleanName}</div>
+                                        ${meta.snippet ? `
+                                            <div style="font-size: 0.72em; color: #666; font-style: italic; margin-bottom: 6px;">📝 "${meta.snippet}"<br>⏱️ ${meta.start} → ${meta.end}</div>
+                                        ` : ''}
+                                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                            <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 File</button>
+                                            ${meta.snippet ? `
+                                                <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝 Script</button>
+                                                <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ Start</button>
+                                                <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ End</button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `;
+                                }).join('')}
                             </div>
                         </div>
 
                         <h3 style="color: #2c3e50; margin-bottom: 15px;">🖼️ Anime Frames (${artifacts.graphics_anime.length} files)</h3>
                         <div style="background: #f3e5f5; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
                                 ${artifacts.graphics_anime.map(file => {
+                                    const meta = artifactMetadata[file] || {};
                                     const match = file.match(/frame_(\d+)_(.*?)_20260213/);
-                                    return `<div style="font-size: 0.85em; color: #7b1fa2;"><strong>Frame ${match[1]}:</strong> ${match[2].replace(/_/g, ' ')}</div>`;
+                                    const frameNum = match ? match[1] : '?';
+                                    const frameName = match ? match[2].replace(/_/g, ' ') : file;
+                                    return `
+                                    <div style="background: white; padding: 10px; border-radius: 4px;">
+                                        <div style="font-size: 0.85em; color: #7b1fa2;"><strong>Frame ${frameNum}:</strong> ${frameName}</div>
+                                        ${meta.snippet ? `
+                                            <div style="font-size: 0.72em; color: #666; font-style: italic; margin: 6px 0;">📝 "${meta.snippet}" | ⏱️ ${meta.start} → ${meta.end}</div>
+                                        ` : ''}
+                                        <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px;">
+                                            <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 File</button>
+                                            ${meta.snippet ? `
+                                                <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝 Script</button>
+                                                <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ Start</button>
+                                                <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ End</button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `;
                                 }).join('')}
                             </div>
                         </div>
 
                         <h3 style="color: #2c3e50; margin-bottom: 15px;">🌄 Backgrounds (${artifacts.graphics_backgrounds.length} files)</h3>
                         <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                                 ${artifacts.graphics_backgrounds.map(file => {
+                                    const meta = artifactMetadata[file] || {};
                                     const match = file.match(/bg_(\d+[ab]?)_(.*?)_20260213/);
-                                    return `<div style="font-size: 0.85em; color: #2e7d32;"><strong>BG-${match[1]}:</strong> ${match[2].replace(/_/g, ' ')}</div>`;
+                                    const bgNum = match ? match[1] : '?';
+                                    const bgName = match ? match[2].replace(/_/g, ' ') : file;
+                                    return `
+                                    <div style="background: white; padding: 8px; border-radius: 4px;">
+                                        <div style="font-size: 0.85em; color: #2e7d32;"><strong>BG-${bgNum}:</strong> ${bgName}</div>
+                                        ${meta.snippet ? `
+                                            <div style="font-size: 0.7em; color: #666; font-style: italic; margin: 4px 0;">📝 "${meta.snippet}"<br>⏱️ ${meta.start} → ${meta.end}</div>
+                                        ` : ''}
+                                        <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
+                                            <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋</button>
+                                            ${meta.snippet ? `
+                                                <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝</button>
+                                                <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️S</button>
+                                                <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️E</button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `;
                                 }).join('')}
                             </div>
                         </div>
 
                         <h3 style="color: #2c3e50; margin-bottom: 15px;">📑 Chapter Markers (${artifacts.graphics_chapters.length} files)</h3>
                         <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
                                 ${artifacts.graphics_chapters.map(file => {
+                                    const meta = artifactMetadata[file] || {};
                                     const match = file.match(/chapter_(\d+)_(.*?)\.png/);
-                                    return `<div style="font-size: 0.85em; color: #856404;"><strong>Ch.${match[1]}:</strong> ${match[2].replace(/_/g, ' ')}</div>`;
+                                    const chNum = match ? match[1] : '?';
+                                    const chName = match ? match[2].replace(/_/g, ' ') : file;
+                                    return `
+                                    <div style="background: white; padding: 8px; border-radius: 4px;">
+                                        <div style="font-size: 0.85em; color: #856404;"><strong>Ch.${chNum}:</strong> ${chName}</div>
+                                        ${meta.snippet ? `
+                                            <div style="font-size: 0.7em; color: #666; font-style: italic; margin: 4px 0;">📝 "${meta.snippet}" | ⏱️ ${meta.start} → ${meta.end}</div>
+                                        ` : ''}
+                                        <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
+                                            <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋</button>
+                                            ${meta.snippet ? `
+                                                <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝</button>
+                                                <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️S</button>
+                                                <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️E</button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `;
                                 }).join('')}
                             </div>
                         </div>
@@ -1126,8 +1427,26 @@
                         <div style="background: #fce4ec; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
                             <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
                                 ${artifacts.graphics_diagrams.map(file => {
+                                    const meta = artifactMetadata[file] || {};
                                     const match = file.match(/dg_(\d+)_(.*?)_20260213/);
-                                    return `<div style="font-size: 0.85em; color: #c2185b;"><strong>Diagram ${match[1]}:</strong> ${match[2].replace(/_/g, ' ')}</div>`;
+                                    const dgNum = match ? match[1] : '?';
+                                    const dgName = match ? match[2].replace(/_/g, ' ') : file;
+                                    return `
+                                    <div style="background: white; padding: 8px; border-radius: 4px;">
+                                        <div style="font-size: 0.85em; color: #c2185b;"><strong>Diagram ${dgNum}:</strong> ${dgName}</div>
+                                        ${meta.snippet ? `
+                                            <div style="font-size: 0.7em; color: #666; font-style: italic; margin: 4px 0;">📝 "${meta.snippet}" | ⏱️ ${meta.start} → ${meta.end}</div>
+                                        ` : ''}
+                                        <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
+                                            <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋</button>
+                                            ${meta.snippet ? `
+                                                <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝</button>
+                                                <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️S</button>
+                                                <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️E</button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `;
                                 }).join('')}
                             </div>
                         </div>
@@ -1136,8 +1455,24 @@
                         <div style="background: #e0f2f1; padding: 15px; border-radius: 6px;">
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
                                 ${artifacts.graphics_logos.map(file => {
+                                    const meta = artifactMetadata[file] || {};
                                     const name = file.replace('000_icon_', '').replace('_logo_v1.png', '').replace('_v1.png', '').replace(/_/g, ' ');
-                                    return `<div style="font-size: 0.85em; color: #00695c;">• ${name}</div>`;
+                                    return `
+                                    <div style="background: white; padding: 8px; border-radius: 4px;">
+                                        <div style="font-size: 0.85em; color: #00695c; font-weight: bold; margin-bottom: 4px;">• ${name}</div>
+                                        ${meta.snippet ? `
+                                            <div style="font-size: 0.7em; color: #666; font-style: italic; margin-bottom: 4px;">📝 "${meta.snippet}"<br>⏱️ ${meta.start} → ${meta.end}</div>
+                                        ` : ''}
+                                        <div style="display: flex; gap: 3px; flex-wrap: wrap;">
+                                            <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋</button>
+                                            ${meta.snippet ? `
+                                                <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝</button>
+                                                <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️S</button>
+                                                <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️E</button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `;
                                 }).join('')}
                             </div>
                         </div>
@@ -1159,7 +1494,10 @@
                         <h3 style="color: #2c3e50; margin-bottom: 15px;">🎵 Music Tracks (${artifacts.music_tracks.filter(f => f.startsWith('track_')).length} files)</h3>
                         <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
                             ${artifacts.music_tracks.filter(f => f.startsWith('track_')).map(file => {
+                                const meta = artifactMetadata[file] || {};
                                 const match = file.match(/track_(\d+)_(.*?)\.wav/);
+                                const trackNum = match ? match[1] : '?';
+                                const trackName = match ? match[2].replace(/_/g, ' ').toUpperCase() : file;
                                 const descriptions = {
                                     'opening_theme': 'Epic intro orchestral build (0:00-1:30)',
                                     'transformation': 'Tension/evolution theme (chapter transitions)',
@@ -1167,10 +1505,22 @@
                                     'tech_ecosystem': 'Modern electronic flow (LLM comparisons)',
                                     'the_feast': 'Dramatic climax theme (feast scene)'
                                 };
+                                const desc = match ? descriptions[match[2]] || 'Background theme music' : '';
                                 return `
                                     <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 10px; border: 2px solid #4caf50;">
-                                        <div style="font-weight: bold; color: #2e7d32; margin-bottom: 4px;">Track ${match[1]}: ${match[2].replace(/_/g, ' ').toUpperCase()}</div>
-                                        <div style="font-size: 0.9em; color: #666;">${descriptions[match[2]] || 'Background theme music'}</div>
+                                        <div style="font-weight: bold; color: #2e7d32; margin-bottom: 4px;">Track ${trackNum}: ${trackName}</div>
+                                        <div style="font-size: 0.9em; color: #666; margin-bottom: 6px;">${desc}</div>
+                                        ${meta.snippet ? `
+                                            <div style="font-size: 0.8em; color: #666; font-style: italic; margin-bottom: 6px;">📝 "${meta.snippet}" | ⏱️ ${meta.start} → ${meta.end}</div>
+                                        ` : ''}
+                                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                            <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 File</button>
+                                            ${meta.snippet ? `
+                                                <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝 Script</button>
+                                                <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ Start</button>
+                                                <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ End</button>
+                                            ` : ''}
+                                        </div>
                                     </div>
                                 `;
                             }).join('')}
@@ -1179,11 +1529,23 @@
                         <h3 style="color: #2c3e50; margin-bottom: 15px;">🌬️ Ambient Tracks (${artifacts.music_tracks.filter(f => f.startsWith('ambient_')).length} files)</h3>
                         <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
                             ${artifacts.music_tracks.filter(f => f.startsWith('ambient_')).map(file => {
+                                const meta = artifactMetadata[file] || {};
                                 const name = file.replace('ambient_', '').replace('.wav', '').replace(/_/g, ' ');
                                 return `
                                     <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 2px solid #2196f3;">
-                                        <div style="font-weight: bold; color: #1976d2; font-size: 0.9em;">🎧 ${name}</div>
-                                        <div style="font-size: 0.85em; color: #666;">Low-level atmospheric layer</div>
+                                        <div style="font-weight: bold; color: #1976d2; font-size: 0.9em; margin-bottom: 4px;">🎧 ${name}</div>
+                                        <div style="font-size: 0.85em; color: #666; margin-bottom: 6px;">Low-level atmospheric layer</div>
+                                        ${meta.snippet ? `
+                                            <div style="font-size: 0.75em; color: #666; font-style: italic; margin-bottom: 6px;">📝 "${meta.snippet}" | ⏱️ ${meta.start} → ${meta.end}</div>
+                                        ` : ''}
+                                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                                            <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋 File</button>
+                                            ${meta.snippet ? `
+                                                <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝 Script</button>
+                                                <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ Start</button>
+                                                <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.7em; padding: 3px 6px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️ End</button>
+                                            ` : ''}
+                                        </div>
                                     </div>
                                 `;
                             }).join('')}
@@ -1193,6 +1555,7 @@
                         <div style="background: #fff3cd; padding: 15px; border-radius: 6px;">
                             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
                                 ${artifacts.sound_effects.map(file => {
+                                    const meta = artifactMetadata[file] || {};
                                     const name = file.replace('sfx_', '').replace('.wav', '').replace(/_/g, ' ');
                                     const contexts = {
                                         'error beep': 'Error states, warnings',
@@ -1204,10 +1567,22 @@
                                         'ui click': 'Button presses, selections',
                                         'whoosh transition': 'Scene changes, swipes'
                                     };
+                                    const context = contexts[name] || 'General purpose';
                                     return `
                                         <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #ffc107;">
-                                            <div style="font-size: 0.85em; color: #856404; font-weight: bold;">• ${name}</div>
-                                            <div style="font-size: 0.8em; color: #999;">${contexts[name] || 'General purpose'}</div>
+                                            <div style="font-size: 0.85em; color: #856404; font-weight: bold; margin-bottom: 4px;">• ${name}</div>
+                                            <div style="font-size: 0.8em; color: #999; margin-bottom: 6px;">${context}</div>
+                                            ${meta.snippet ? `
+                                                <div style="font-size: 0.7em; color: #666; font-style: italic; margin-bottom: 6px;">📝 "${meta.snippet}"<br>⏱️ ${meta.start} → ${meta.end}</div>
+                                            ` : ''}
+                                            <div style="display: flex; gap: 3px; flex-wrap: wrap;">
+                                                <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">📋</button>
+                                                ${meta.snippet ? `
+                                                    <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #9c27b0; color: white; border: none; border-radius: 3px; cursor: pointer;">📝</button>
+                                                    <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️S</button>
+                                                    <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.65em; padding: 2px 5px; background: #ff9800; color: white; border: none; border-radius: 3px; cursor: pointer;">⏱️E</button>
+                                                ` : ''}
+                                            </div>
                                         </div>
                                     `;
                                 }).join('')}
@@ -1228,17 +1603,32 @@
                 subtitles: `
                     <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
                         <h3 style="color: #2c3e50; margin-bottom: 15px;">💬 Subtitle Files (${artifacts.subtitles.length} files)</h3>
-                        ${artifacts.subtitles.map(file => `
+                        ${artifacts.subtitles.map(file => {
+                            const meta = artifactMetadata[file] || {};
+                            const isPrimary = file === 'source_subtitle.srt';
+                            return `
                             <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 2px solid #e0e0e0;">
                                 <div style="font-weight: bold; color: #667eea; margin-bottom: 8px; font-size: 1.1em;">📄 ${file}</div>
-                                <div style="font-size: 0.9em; color: #666; line-height: 1.6;">
-                                    ${file === 'source_subtitle.srt' ? 
+                                <div style="font-size: 0.9em; color: #666; line-height: 1.6; margin-bottom: 8px;">
+                                    ${isPrimary ? 
                                         '<strong>Primary subtitle track:</strong> Full transcript with timestamps<br>• Synced to A-roll narration<br>• Includes punctuation and formatting<br>• Ready for timeline import' :
                                         '<strong>Alternative track:</strong> Color-coded subtitle version<br>• Green: A-roll dialogue<br>• Red: Screen capture descriptions<br>• Blue: Memory palace scene references'
                                     }
                                 </div>
+                                ${meta.snippet ? `
+                                    <div style="font-size: 0.85em; color: #666; font-style: italic; margin-bottom: 8px; padding: 8px; background: #f8f9fa; border-radius: 4px;">📝 "${meta.snippet}" | ⏱️ ${meta.start} → ${meta.end}</div>
+                                ` : ''}
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                    <button onclick="copyToClipboard('${file}', this)" style="font-size: 0.8em; padding: 6px 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">📋 Copy Filename</button>
+                                    ${meta.snippet ? `
+                                        <button onclick="copyToClipboard('${meta.snippet}', this)" style="font-size: 0.8em; padding: 6px 10px; background: #9c27b0; color: white; border: none; border-radius: 4px; cursor: pointer;">📝 Copy Script</button>
+                                        <button onclick="copyToClipboard('${meta.start}', this)" style="font-size: 0.8em; padding: 6px 10px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">⏱️ Copy Start</button>
+                                        <button onclick="copyToClipboard('${meta.end}', this)" style="font-size: 0.8em; padding: 6px 10px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer;">⏱️ Copy End</button>
+                                    ` : ''}
+                                </div>
                             </div>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </div>
                     <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3; margin-bottom: 20px;">
                         <h4 style="color: #1976d2; margin-bottom: 10px;">🎯 Subtitle Implementation</h4>
