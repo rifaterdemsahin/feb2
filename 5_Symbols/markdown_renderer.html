@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Viewer - Feb2 Project</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .top-nav {
+            background: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            flex-wrap: wrap;
+            border-bottom: 3px solid #34495e;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            display: inline-block;
+            transition: all 0.3s;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+        }
+
+        .top-nav a:hover {
+            background: #34495e;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .top-nav a.active {
+            background: #34495e;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 2px solid #e0e0e0;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+
+        .sidebar h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .markdown-list {
+            list-style: none;
+        }
+
+        .markdown-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .markdown-item:hover {
+            border-left: 3px solid #667eea;
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        .markdown-item.active {
+            border-left: 3px solid #667eea;
+            background: #e8eaf6;
+            font-weight: bold;
+        }
+
+        .markdown-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+
+        .markdown-content {
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .markdown-content h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .markdown-content h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .markdown-content h3 {
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        .markdown-content p {
+            margin-bottom: 15px;
+        }
+
+        .markdown-content ul, .markdown-content ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .markdown-content li {
+            margin-bottom: 8px;
+        }
+
+        .markdown-content code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .markdown-content pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        .markdown-content pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        .markdown-content blockquote {
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+            margin: 15px 0;
+            color: #666;
+            font-style: italic;
+        }
+
+        .markdown-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .markdown-content table th,
+        .markdown-content table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .markdown-content table th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .markdown-content table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .markdown-content a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .markdown-content a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+
+        .error {
+            background: #ffebee;
+            border-left: 4px solid #c62828;
+            padding: 15px;
+            border-radius: 6px;
+            color: #c62828;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 2px solid #e0e0e0;
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Markdown Viewer</h1>
+            <p>Project Documentation and Guides</p>
+        </header>
+
+        <nav class="top-nav">
+            <a href="../index.html">🏠 Home</a>
+            <a href="postproduction_helper.html">🔍 Post-Production Helper</a>
+            <a href="video_editing_plan_ready.html">📋 Video Editing Plan</a>
+            <a href="file_inventory.html">📁 File Inventory</a>
+            <a href="markdown_renderer.html" class="active">📝 Markdown Viewer</a>
+        </nav>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <h3>📚 Documentation</h3>
+                
+                <div class="markdown-section">
+                    <div class="section-title">Root Documentation</div>
+                    <ul class="markdown-list">
+                        <li class="markdown-item" onclick="loadMarkdown('../README.md', this)">
+                            📖 README.md
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../METHODOLOGY.md', this)">
+                            🔄 METHODOLOGY.md
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../PROJECT_STRUCTURE_7PHASE.md', this)">
+                            🏗️ PROJECT_STRUCTURE_7PHASE.md
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="markdown-section">
+                    <div class="section-title">Phase Documentation</div>
+                    <ul class="markdown-list">
+                        <li class="markdown-item" onclick="loadMarkdown('../1_Real_Unknown/README.md', this)">
+                            1️⃣ Real Unknown README
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../2_Environment/README.md', this)">
+                            2️⃣ Environment README
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../3_Simulation/README.md', this)">
+                            3️⃣ Simulation README
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../4_Formula/README.md', this)">
+                            4️⃣ Formula README
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../4_Formula/PROJECT_STRUCTURE.md', this)">
+                            📁 Formula Project Structure
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../5_Symbols/README.md', this)">
+                            5️⃣ Symbols README
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../6_Semblance/README.md', this)">
+                            6️⃣ Semblance README
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../7_Testing_known/README.md', this)">
+                            7️⃣ Testing Known README
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="markdown-section">
+                    <div class="section-title">Source Files</div>
+                    <ul class="markdown-list">
+                        <li class="markdown-item" onclick="loadMarkdown('../2_Environment/source_transcript.md', this)">
+                            🎙️ Transcript
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../2_Environment/source_storyboard.md', this)">
+                            🎬 Storyboard
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../2_Environment/source_shotlist.md', this)">
+                            📸 Shot List
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../2_Environment/source_music.md', this)">
+                            🎵 Music
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../2_Environment/source_graphics.md', this)">
+                            🎨 Graphics
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../2_Environment/source_edl.md', this)">
+                            ✂️ EDL
+                        </li>
+                        <li class="markdown-item" onclick="loadMarkdown('../2_Environment/source_broll.md', this)">
+                            🎥 B-Roll
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div id="markdownContent" class="markdown-content">
+                    <div class="loading">
+                        👈 Select a markdown file from the sidebar to view its content
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadMarkdown(path, element) {
+            // Remove active class from all items
+            document.querySelectorAll('.markdown-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            if (element) {
+                element.classList.add('active');
+            }
+
+            const contentDiv = document.getElementById('markdownContent');
+            contentDiv.innerHTML = '<div class="loading">⏳ Loading...</div>';
+
+            try {
+                const response = await fetch(path);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const markdown = await response.text();
+                const html = marked.parse(markdown);
+                contentDiv.innerHTML = html;
+            } catch (error) {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Error loading file:</strong> ${error.message}<br>
+                        <em>Path: ${path}</em>
+                    </div>
+                `;
+            }
+        }
+
+        // Load README by default
+        window.addEventListener('DOMContentLoaded', () => {
+            const firstItem = document.querySelector('.markdown-item');
+            if (firstItem) {
+                loadMarkdown('../README.md', firstItem);
+            }
+        });
+    </script>
+</body>
+</html>
