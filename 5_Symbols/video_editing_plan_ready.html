@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Editing Ready Plan - Artifact Reference</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .top-nav {
+            background: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            flex-wrap: wrap;
+            border-bottom: 3px solid #34495e;
+        }
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            display: inline-block;
+            transition: all 0.3s;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+        }
+        .top-nav a:hover {
+            background: #34495e;
+            border-bottom: 3px solid #667eea;
+        }
+        .top-nav a.active {
+            background: #34495e;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .workflow-controls {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .current-focus {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            font-family: monospace;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .task-sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 2px solid #e0e0e0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .task-category {
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .task-category:hover {
+            transform: translateX(5px);
+            border-color: #667eea;
+        }
+
+        .task-category.active {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .task-category.completed {
+            opacity: 0.6;
+            background: #e8f5e9;
+        }
+
+        .task-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .task-icon {
+            font-size: 1.5em;
+        }
+
+        .task-stats {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            font-size: 0.9em;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .work-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .work-area h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .timeline-visual {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .timeline-bar {
+            height: 60px;
+            background: linear-gradient(to right, #ecf0f1, #bdc3c7);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-segment {
+            position: absolute;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85em;
+            border-right: 2px solid white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .timeline-segment:hover {
+            filter: brightness(1.1);
+            transform: scaleY(1.1);
+            z-index: 10;
+        }
+
+        .placement-list {
+            margin-top: 20px;
+        }
+
+        .placement-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .placement-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .placement-item.placed {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .placement-info {
+            flex: 1;
+        }
+
+        .placement-time {
+            font-family: monospace;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .placement-desc {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .placement-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .add-placement {
+            margin-top: 20px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px dashed #bdc3c7;
+        }
+
+        .add-placement h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        .quality-checklist {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .quality-checklist h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .quality-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quality-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Artifact Browser Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        .artifact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .artifact-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .artifact-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .artifact-category {
+            margin-bottom: 30px;
+        }
+
+        .artifact-category-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .task-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 2px solid #e0e0e0;
+            }
+
+            .workflow-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Video Editing Ready Plan</h1>
+            <p>Artifact Reference for Post-Production - Ready-to-Place Assets by Category</p>
+        </header>
+
+        <nav class="top-nav">
+            <a href="../index.html">🏠 Home</a>
+            <a href="postproduction_helper.html">🔍 Post-Production Helper</a>
+            <a href="video_editing_plan.html" class="active">📋 Video Editing Plan</a>
+            <a href="file_inventory.html">📁 File Inventory</a>
+        </nav>
+
+        <div class="workflow-controls">
+            <div class="current-focus">
+                Current Focus: <span id="currentTask">Select a category to begin</span>
+            </div>
+            <div style="color: #667eea; font-weight: bold; font-size: 1.1em;">
+                📦 112+ Assets Ready for Placement
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="task-sidebar">
+                <h3 style="margin-bottom: 20px; color: #2c3e50;">📋 Asset Categories</h3>
+                
+                <div class="task-category" data-task="transcript" onclick="selectTask('transcript')">
+                    <div class="task-header">
+                        <div class="task-name">📝 Transcript Review</div>
+                        <div class="task-icon">📄</div>
+                    </div>
+                    <div class="task-stats">
+                        <div>Source documents & guides</div>
+                    </div>
+                </div>
+
+                <div class="task-category" data-task="broll" onclick="selectTask('broll')">
+                    <div class="task-header">
+                        <div class="task-name">🎥 B-Roll Placement</div>
+                        <div class="task-icon">🎞️</div>
+                    </div>
+                    <div class="task-stats">
+                        <div>34 screen captures & animations</div>
+                    </div>
+                </div>
+
+                <div class="task-category" data-task="graphics" onclick="selectTask('graphics')">
+                    <div class="task-header">
+                        <div class="task-name">🎨 Graphics & Titles</div>
+                        <div class="task-icon">📊</div>
+                    </div>
+                    <div class="task-stats">
+                        <div>62 graphic assets</div>
+                    </div>
+                </div>
+
+                <div class="task-category" data-task="music" onclick="selectTask('music')">
+                    <div class="task-header">
+                        <div class="task-name">🎵 Music & Audio</div>
+                        <div class="task-icon">🎼</div>
+                    </div>
+                    <div class="task-stats">
+                        <div>16 tracks & sound effects</div>
+                    </div>
+                </div>
+
+                <div class="task-category" data-task="subtitles" onclick="selectTask('subtitles')">
+                    <div class="task-header">
+                        <div class="task-name">💬 Subtitles & Captions</div>
+                        <div class="task-icon">📝</div>
+                    </div>
+                    <div class="task-stats">
+                        <div>2 subtitle files ready</div>
+                    </div>
+                </div>
+
+                <div class="task-category" data-task="transitions" onclick="selectTask('transitions')">
+                    <div class="task-header">
+                        <div class="task-name">✨ Transitions & Effects</div>
+                        <div class="task-icon">🌟</div>
+                    </div>
+                    <div class="task-stats">
+                        <div>Placement strategies</div>
+                    </div>
+                </div>
+
+                <div class="task-category" data-task="colorcorrection" onclick="selectTask('colorcorrection')">
+                    <div class="task-header">
+                        <div class="task-name">🎨 Color Correction</div>
+                        <div class="task-icon">🌈</div>
+                    </div>
+                    <div class="task-stats">
+                        <div>Workflow & guidelines</div>
+                    </div>
+                </div>
+
+                <div class="task-category" data-task="finalreview" onclick="selectTask('finalreview')">
+                    <div class="task-header">
+                        <div class="task-name">✅ Final Review</div>
+                        <div class="task-icon">🎯</div>
+                    </div>
+                    <div class="task-stats">
+                        <div>Quality checklist</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="work-area" id="workArea">
+                <h2>👋 Welcome to Your Ready Plan</h2>
+                
+                <div class="stats-bar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: white;">34</div>
+                        <div class="stat-label" style="color: rgba(255,255,255,0.9);">Video Assets</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: white;">62</div>
+                        <div class="stat-label" style="color: rgba(255,255,255,0.9);">Graphics</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: white;">16</div>
+                        <div class="stat-label" style="color: rgba(255,255,255,0.9);">Audio Files</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" style="color: white;">100%</div>
+                        <div class="stat-label" style="color: rgba(255,255,255,0.9);">Ready</div>
+                    </div>
+                </div>
+
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                    <h3 style="color: #1976d2; margin-bottom: 10px;">🎯 Post-Production Ready Reference</h3>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li><strong>Asset-Focused:</strong> See exactly what artifacts are available for each task</li>
+                        <li><strong>Organized by Category:</strong> B-Roll, Graphics, Music, Subtitles, and more</li>
+                        <li><strong>Placement Guidance:</strong> Learn where and how to use each asset type</li>
+                        <li><strong>Quality Standards:</strong> Checklists ensure professional results</li>
+                        <li><strong>Complete Inventory:</strong> All 112+ artifacts catalogued and categorized</li>
+                    </ul>
+                </div>
+
+                <div style="background: #f3e5f5; padding: 20px; border-radius: 8px; border-left: 4px solid #9c27b0; margin-top: 20px;">
+                    <h3 style="color: #7b1fa2; margin-bottom: 15px;">📦 Available Artifacts</h3>
+                    <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
+                        Source: <strong>F:\\feb2\\3_Simulation\\DETAILED_FILE_INVENTORY.csv</strong>
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">🎥 Video Assets</div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                • 1 A-Roll footage<br>
+                                • 11 Screen captures<br>
+                                • 22 Animations (Manim + Remotion)
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">🎨 Graphics</div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                • 10 3D Objects<br>
+                                • 12 Anime frames<br>
+                                • 13 Backgrounds<br>
+                                • 15 Chapter markers<br>
+                                • 12 Diagrams<br>
+                                • 9 Company logos
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">🎵 Audio</div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                • 8 Music tracks<br>
+                                • 8 Sound effects<br>
+                                • Background ambience
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">📝 Documents</div>
+                            <div style="font-size: 0.9em; color: #666;">
+                                • 2 Subtitle files (.srt)<br>
+                                • Transcript & EDL<br>
+                                • Storyboard & Shot list
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 15px; margin-right: 10px;" onclick="openArtifactBrowser()">📦 Browse All Artifacts</button>
+                </div>
+
+                <div class="timeline-visual" style="margin-top: 30px;">
+                    <div class="timeline-header">
+                        <span>Video Timeline Overview</span>
+                        <span>Total Duration: <span id="videoDuration">00:00</span></span>
+                    </div>
+                    <div class="timeline-bar" id="timelineBar">
+                        <!-- Timeline segments will be added dynamically -->
+                    </div>
+                </div>
+
+                <p style="margin-top: 20px; color: #666; text-align: center; font-size: 1.1em;">
+                    👈 Select a task category to view available artifacts and placement guidance
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Artifact Browser Modal -->
+    <div id="artifactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="color: #2c3e50; margin: 0;">📦 Complete Artifact Inventory</h2>
+                <span class="close" onclick="closeArtifactBrowser()">&times;</span>
+            </div>
+            
+            <p style="color: #666; margin-bottom: 20px;">
+                <strong>Source:</strong> F:\\feb2\\3_Simulation\\DETAILED_FILE_INVENTORY.csv
+            </p>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🎥 Screen Captures (B-Roll)</div>
+                <div class="artifact-grid" id="broll-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">✨ Animations</div>
+                <div class="artifact-grid" id="animations-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🎨 3D Graphics</div>
+                <div class="artifact-grid" id="graphics3d-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🖼️ Anime Frames</div>
+                <div class="artifact-grid" id="anime-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🌄 Backgrounds</div>
+                <div class="artifact-grid" id="backgrounds-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">📑 Chapter Markers</div>
+                <div class="artifact-grid" id="chapters-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">📊 Diagrams</div>
+                <div class="artifact-grid" id="diagrams-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🏢 Company Logos</div>
+                <div class="artifact-grid" id="logos-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🎵 Music Tracks</div>
+                <div class="artifact-grid" id="music-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">🔊 Sound Effects</div>
+                <div class="artifact-grid" id="sfx-list"></div>
+            </div>
+
+            <div class="artifact-category">
+                <div class="artifact-category-header">💬 Subtitles</div>
+                <div class="artifact-grid" id="subtitles-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentTaskType = null;
+
+        // Artifact inventory from F:\feb2\3_Simulation\DETAILED_FILE_INVENTORY.csv
+        const artifacts = {
+            aroll: [
+                'Replay 2026-02-09-06-59.mp4'
+            ],
+            broll: [
+                'screencapture10+Replay 2026-02-09-19-56.mp4',
+                'screencapture2_feb2.mov',
+                'screencapture2_feb2_v2.mov',
+                'screencapture3_feb2_Replay 2026-02-09-17-48.mp4',
+                'screencapture3_feb2_s3.mov',
+                'screencapture4_feb2_Replay 2026-02-09-18-01.mp4',
+                'screencapture5_feb2_Replay 2026-02-09-18-08.mp4',
+                'screencapture6_feb2_Replay 2026-02-09-18-18.mp4',
+                'screencapture7_feb2_Replay 2026-02-09-18-26.mp4',
+                'screencapture8_feb2_Replay 2026-02-09-18-31.mp4',
+                'screencapture9_Replay 2026-02-09-19-39.mp4'
+            ],
+            animations: [
+                'CICDPipelineAnimation.mp4',
+                'GitCloneAnimation.mp4',
+                'LLMFeatureCardsAnimation.mp4',
+                'NumberCounterAnimation.mp4',
+                'SpeedMultiplierAnimation.mp4',
+                'StaticVsDynamicAnimation.mp4',
+                '01_golden_mic_intro.mp4',
+                '02_pivot_decision.mp4',
+                '03_zombie_snails.mp4',
+                '04_statues_vs_mercury.mp4',
+                '05_breaking_chains.mp4',
+                '06_clone_lab.mp4',
+                '07_free_tier_tools.mp4',
+                '08_internet_kill_switch.mp4',
+                '09_llm_feast.mp4',
+                '10_claude_card.mp4',
+                '11_chatgpt_card.mp4',
+                '12_deepseek_card.mp4',
+                '13_gemini_card.mp4',
+                '14_n8n_bespoke.mp4',
+                '15_success_metrics.mp4',
+                '16_drone_city_finale.mp4'
+            ],
+            graphics_3d: [
+                '000_3d_ai_brain_feast_20260213_v1_texture.png',
+                '000_3d_automation_gear_20260213_v1_texture.png',
+                '000_3d_compass_pivot_20260213_v1_texture.png',
+                '000_3d_free_tier_toolbox_20260213_v1_texture.png',
+                '000_3d_futuristic_city_20260213_v1_texture.png',
+                '000_3d_golden_microphone_20260213_v1_texture.png',
+                '000_3d_internet_kill_switch_20260213_v1_texture.png',
+                '000_3d_laptop_terminal_20260213_v1_texture.png',
+                '000_3d_mercury_liquid_figure_20260213_v1_texture.png',
+                '000_3d_rocket_cicd_20260213_v1_texture.png'
+            ],
+            graphics_anime: [
+                '001_anime_frame_1_opening_the_heavy_mic_20260213_v1.png',
+                '002_anime_frame_2_the_pivot_20260213_v1.png',
+                '003_anime_frame_3_statues_vs_mercury_20260213_v1.png',
+                '004_anime_frame_4_the_clone_lab_20260213_v1.png',
+                '005_anime_frame_5_the_evolution_20260213_v1.png',
+                '006_anime_frame_6_the_nursery_20260213_v1.png',
+                '007_anime_frame_7_the_crystal_ball_20260213_v1.png',
+                '008_anime_frame_8_the_engine_room_20260213_v1.png',
+                '009_anime_frame_9_the_digital_feast_20260213_v1.png',
+                '010_anime_frame_10_the_power_station_20260213_v1.png',
+                '011_anime_frame_11_the_tool_shed_20260213_v1.png',
+                '012_anime_frame_12_the_balcony_20260213_v1.png'
+            ],
+            graphics_backgrounds: [
+                'bg_01_heavy_mic_20260213_203750.png',
+                'bg_02_pivot_20260213_203750.png',
+                'bg_03a_statues_20260213_203750.png',
+                'bg_03b_mercury_20260213_203750.png',
+                'bg_04_clone_lab_20260213_203750.png',
+                'bg_05_evolution_20260213_203750.png',
+                'bg_06_nursery_20260213_203750.png',
+                'bg_07_crystal_ball_20260213_203750.png',
+                'bg_08_engine_room_20260213_203750.png',
+                'bg_09_digital_feast_20260213_203750.png',
+                'bg_10_power_station_20260213_203750.png',
+                'bg_11_tool_shed_20260213_203750.png',
+                'bg_12_balcony_20260213_203750.png'
+            ],
+            graphics_chapters: [
+                'chapter_01_introduction.png',
+                'chapter_02_background.png',
+                'chapter_03_core_concepts.png',
+                'chapter_04_workflow_architecture.png',
+                'chapter_05_implementation.png',
+                'chapter_06_automation_strategies.png',
+                'chapter_07_integration.png',
+                'chapter_08_monitoring_and_analytics.png',
+                'chapter_09_scaling_challenges.png',
+                'chapter_10_future_directions.png',
+                'chapter_11_case_studies.png',
+                'chapter_12_advanced_topics.png',
+                'chapter_13_best_practices.png',
+                'chapter_14_troubleshooting.png',
+                'chapter_15_conclusion.png'
+            ],
+            graphics_diagrams: [
+                'dg_01_golden_mic_hierarchy_20260213_211013.png',
+                'dg_02_240_workflow_architecture_20260213_211013.png',
+                'dg_03_static_vs_dynamic_flow_20260213_211013.png',
+                'dg_04_git_clone_sequence_20260213_211013.png',
+                'dg_05_tool_evolution_timeline_20260213_211013.png',
+                'dg_06_internet_kill_switch_flow_20260213_211013.png',
+                'dg_07_tech_platform_comparison_20260213_211013.png',
+                'dg_08_speed_benchmark_chart_20260213_211013.png',
+                'dg_09_llm_comparison_matrix_20260213_211013.png',
+                'dg_10_n8n_automation_flow_20260213_211013.png',
+                'dg_11_cicd_pipeline_diagram_20260213_211013.png',
+                'dg_12_journey_roadmap_20260213_211013.png'
+            ],
+            graphics_logos: [
+                '000_icon_anthropic_logo_v1.png',
+                '000_icon_cursor_ai_logo_v1.png',
+                '000_icon_deepseek_logo_v1.png',
+                '000_icon_family_shield_v1.png',
+                '000_icon_github_logo_v1.png',
+                '000_icon_google_gemini_logo_v1.png',
+                '000_icon_n8n_logo_v1.png',
+                '000_icon_openai_logo_v1.png',
+                '000_icon_vscode_logo_v1.png'
+            ],
+            music_tracks: [
+                'track_01_opening_theme.wav',
+                'track_02_transformation.wav',
+                'track_03_innovation.wav',
+                'track_04_tech_ecosystem.wav',
+                'track_05_the_feast.wav',
+                'ambient_digital_space.wav',
+                'ambient_futuristic_city.wav',
+                'ambient_tech_office.wav'
+            ],
+            sound_effects: [
+                'sfx_error_beep.wav',
+                'sfx_impact_hit.wav',
+                'sfx_riser_buildup.wav',
+                'sfx_success_chime.wav',
+                'sfx_tech_beep.wav',
+                'sfx_typing_sequence.wav',
+                'sfx_ui_click.wav',
+                'sfx_whoosh_transition.wav'
+            ],
+            subtitles: [
+                'source_subtitle.srt',
+                'tuesday_3_blue memory palace green aroll background red screen captire.srt'
+            ]
+        };
+
+        // Task selection
+        function selectTask(taskType) {
+            currentTaskType = taskType;
+            
+            // Update sidebar active state
+            document.querySelectorAll('.task-category').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`[data-task="${taskType}"]`).classList.add('active');
+            
+            // Update current focus display
+            const taskNames = {
+                transcript: 'Transcript Review',
+                broll: 'B-Roll Placement',
+                graphics: 'Graphics & Titles',
+                music: 'Music & Audio',
+                subtitles: 'Subtitles & Captions',
+                transitions: 'Transitions & Effects',
+                colorcorrection: 'Color Correction',
+                finalreview: 'Final Review'
+            };
+            document.getElementById('currentTask').textContent = taskNames[taskType];
+            
+            // Render work area
+            renderWorkArea(taskType);
+        }
+
+        // Render work area for selected task
+        function renderWorkArea(taskType) {
+            const taskIcons = {
+                transcript: '📝',
+                broll: '🎥',
+                graphics: '🎨',
+                music: '🎵',
+                subtitles: '💬',
+                transitions: '✨',
+                colorcorrection: '🎨',
+                finalreview: '✅'
+            };
+
+            const taskNames = {
+                transcript: 'Transcript Review',
+                broll: 'B-Roll Placement',
+                graphics: 'Graphics & Titles',
+                music: 'Music & Audio',
+                subtitles: 'Subtitles & Captions',
+                transitions: 'Transitions & Effects',
+                colorcorrection: 'Color Correction',
+                finalreview: 'Final Review'
+            };
+
+            const taskDescriptions = {
+                transcript: 'Review source transcript file and identify key moments for visual enhancement',
+                broll: 'Available screen captures and animations ready for placement over A-roll timeline',
+                graphics: 'Visual elements including 3D objects, anime frames, backgrounds, diagrams, and chapter markers',
+                music: 'Background music tracks, sound effects, and ambient audio layers',
+                subtitles: 'Pre-generated subtitle files for synchronization with video timeline',
+                transitions: 'Effects to apply between scene cuts and animation sequences',
+                colorcorrection: 'Color grading passes for A-roll footage and screen captures',
+                finalreview: 'Quality control checklist and final export verification'
+            };
+
+            const workArea = document.getElementById('workArea');
+
+            let html = `
+                <h2>${taskIcons[taskType]} ${taskNames[taskType]}</h2>
+                <p style="color: #666; margin-bottom: 20px; font-size: 1.1em;">${taskDescriptions[taskType]}</p>
+
+                ${getArtifactOptionsContent(taskType)}
+
+                <div class="quality-checklist" style="margin-top: 30px;">
+                    <h3>✨ Quality Standards for ${taskNames[taskType]}</h3>
+                    ${getQualityChecklist(taskType)}
+                </div>
+            `;
+
+            workArea.innerHTML = html;
+        }
+
+        // Get artifact options content based on task type
+        function getArtifactOptionsContent(taskType) {
+            const contentMap = {
+                transcript: `
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">📄 Source Documents</h3>
+                        <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">📝 Primary Transcript</div>
+                            <div style="font-size: 0.95em; color: #666;">source_transcript.md</div>
+                            <div style="font-size: 0.9em; color: #999; margin-top: 5px;">Full narration text with timing marks</div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">🎬 Edit Decision List</div>
+                            <div style="font-size: 0.95em; color: #666;">source_edl.md</div>
+                            <div style="font-size: 0.9em; color: #999; margin-top: 5px;">Cut list with in/out points</div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 6px;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 8px;">📖 Storyboard Reference</div>
+                            <div style="font-size: 0.95em; color: #666;">source_storyboard.md</div>
+                            <div style="font-size: 0.9em; color: #999; margin-top: 5px;">Scene descriptions and visual planning</div>
+                        </div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">🎯 Workflow for Transcript Review</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8; color: #666;">
+                            <li>Mark sections requiring B-roll coverage</li>
+                            <li>Identify moments for graphic overlays or text highlights</li>
+                            <li>Note music cue points and intensity changes</li>
+                            <li>Flag dialogue sections needing subtitle emphasis</li>
+                            <li>Document pacing adjustments and transition points</li>
+                        </ul>
+                    </div>
+                `,
+                broll: `
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">🎥 Screen Captures (${artifacts.broll.length} files)</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 25px;">
+                            ${artifacts.broll.map(file => `
+                                <div style="background: white; padding: 12px; border-radius: 6px; border: 2px solid #e0e0e0; transition: all 0.3s;">
+                                    <div style="font-size: 0.9em; color: #667eea; font-weight: bold; margin-bottom: 4px;">🎬 ${file}</div>
+                                    <div style="font-size: 0.85em; color: #999;">${getFileExtension(file).toUpperCase()}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <h3 style="color: #2c3e50; margin-bottom: 15px; margin-top: 30px;">✨ Animations (${artifacts.animations.length} files)</h3>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 2px solid #ffc107;">
+                            <div style="font-weight: bold; color: #856404; margin-bottom: 8px;">📐 Manim Animations (6 files)</div>
+                            ${['CICDPipelineAnimation.mp4', 'GitCloneAnimation.mp4', 'LLMFeatureCardsAnimation.mp4', 'NumberCounterAnimation.mp4', 'SpeedMultiplierAnimation.mp4', 'StaticVsDynamicAnimation.mp4'].map(file => `
+                                <div style="font-size: 0.9em; color: #666; padding: 4px 0;">• ${file}</div>
+                            `).join('')}
+                        </div>
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; border: 2px solid #4caf50;">
+                            <div style="font-weight: bold; color: #2e7d32; margin-bottom: 8px;">🎭 Remotion Scene Animations (16 files)</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                ${artifacts.animations.filter(f => f.includes('_')).map(file => `
+                                    <div style="font-size: 0.85em; color: #666;">• ${file}</div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">🎯 Placement Strategy</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8; color: #666;">
+                            <li><strong>Screen Captures:</strong> Technical demonstrations, UI walkthroughs, code examples</li>
+                            <li><strong>Manim Animations:</strong> Data visualizations, diagrams, technical concepts</li>
+                            <li><strong>Remotion Scenes:</strong> Narrative moments, chapter transitions, metaphorical visuals</li>
+                            <li><strong>Layering:</strong> Consider picture-in-picture for screen captures over animations</li>
+                            <li><strong>Duration:</strong> Match B-roll length to narration pacing (3-7 second average)</li>
+                        </ul>
+                    </div>
+                `,
+                graphics: `
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">🎨 3D Objects (${artifacts.graphics_3d.length} files)</h3>
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">
+                                ${artifacts.graphics_3d.map(file => `
+                                    <div style="font-size: 0.85em; color: #1976d2;">• ${file.replace('000_3d_', '').replace('_20260213_v1_texture.png', '')}</div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">🖼️ Anime Frames (${artifacts.graphics_anime.length} files)</h3>
+                        <div style="background: #f3e5f5; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                ${artifacts.graphics_anime.map(file => {
+                                    const match = file.match(/frame_(\d+)_(.*?)_20260213/);
+                                    return `<div style="font-size: 0.85em; color: #7b1fa2;"><strong>Frame ${match[1]}:</strong> ${match[2].replace(/_/g, ' ')}</div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">🌄 Backgrounds (${artifacts.graphics_backgrounds.length} files)</h3>
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                                ${artifacts.graphics_backgrounds.map(file => {
+                                    const match = file.match(/bg_(\d+[ab]?)_(.*?)_20260213/);
+                                    return `<div style="font-size: 0.85em; color: #2e7d32;"><strong>BG-${match[1]}:</strong> ${match[2].replace(/_/g, ' ')}</div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">📑 Chapter Markers (${artifacts.graphics_chapters.length} files)</h3>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                ${artifacts.graphics_chapters.map(file => {
+                                    const match = file.match(/chapter_(\d+)_(.*?)\.png/);
+                                    return `<div style="font-size: 0.85em; color: #856404;"><strong>Ch.${match[1]}:</strong> ${match[2].replace(/_/g, ' ')}</div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">📊 Diagrams (${artifacts.graphics_diagrams.length} files)</h3>
+                        <div style="background: #fce4ec; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                                ${artifacts.graphics_diagrams.map(file => {
+                                    const match = file.match(/dg_(\d+)_(.*?)_20260213/);
+                                    return `<div style="font-size: 0.85em; color: #c2185b;"><strong>Diagram ${match[1]}:</strong> ${match[2].replace(/_/g, ' ')}</div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">🏢 Company Logos & Icons (${artifacts.graphics_logos.length} files)</h3>
+                        <div style="background: #e0f2f1; padding: 15px; border-radius: 6px;">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                                ${artifacts.graphics_logos.map(file => {
+                                    const name = file.replace('000_icon_', '').replace('_logo_v1.png', '').replace('_v1.png', '').replace(/_/g, ' ');
+                                    return `<div style="font-size: 0.85em; color: #00695c;">• ${name}</div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">🎯 Graphic Placement Guidelines</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8; color: #666;">
+                            <li><strong>3D Objects:</strong> Hero shots, title cards, scene establers (2-4 seconds)</li>
+                            <li><strong>Anime Frames:</strong> Full-screen storytelling moments, chapter dividers</li>
+                            <li><strong>Backgrounds:</strong> Lower third backgrounds, composite layers</li>
+                            <li><strong>Chapter Markers:</strong> Section transitions (2 second fade in/out)</li>
+                            <li><strong>Diagrams:</strong> Overlay on B-roll or as standalone explainers (5-8 seconds)</li>
+                            <li><strong>Logos:</strong> Lower thirds, credits, product mentions (1-2 seconds)</li>
+                        </ul>
+                    </div>
+                `,
+                music: `
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">🎵 Music Tracks (${artifacts.music_tracks.filter(f => f.startsWith('track_')).length} files)</h3>
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            ${artifacts.music_tracks.filter(f => f.startsWith('track_')).map(file => {
+                                const match = file.match(/track_(\d+)_(.*?)\.wav/);
+                                const descriptions = {
+                                    'opening_theme': 'Epic intro orchestral build (0:00-1:30)',
+                                    'transformation': 'Tension/evolution theme (chapter transitions)',
+                                    'innovation': 'Upbeat tech energy (technical sections)',
+                                    'tech_ecosystem': 'Modern electronic flow (LLM comparisons)',
+                                    'the_feast': 'Dramatic climax theme (feast scene)'
+                                };
+                                return `
+                                    <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 10px; border: 2px solid #4caf50;">
+                                        <div style="font-weight: bold; color: #2e7d32; margin-bottom: 4px;">Track ${match[1]}: ${match[2].replace(/_/g, ' ').toUpperCase()}</div>
+                                        <div style="font-size: 0.9em; color: #666;">${descriptions[match[2]] || 'Background theme music'}</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">🌬️ Ambient Tracks (${artifacts.music_tracks.filter(f => f.startsWith('ambient_')).length} files)</h3>
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            ${artifacts.music_tracks.filter(f => f.startsWith('ambient_')).map(file => {
+                                const name = file.replace('ambient_', '').replace('.wav', '').replace(/_/g, ' ');
+                                return `
+                                    <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 2px solid #2196f3;">
+                                        <div style="font-weight: bold; color: #1976d2; font-size: 0.9em;">🎧 ${name}</div>
+                                        <div style="font-size: 0.85em; color: #666;">Low-level atmospheric layer</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">🔊 Sound Effects (${artifacts.sound_effects.length} files)</h3>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 6px;">
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                ${artifacts.sound_effects.map(file => {
+                                    const name = file.replace('sfx_', '').replace('.wav', '').replace(/_/g, ' ');
+                                    const contexts = {
+                                        'error beep': 'Error states, warnings',
+                                        'impact hit': 'Emphasis, reveals',
+                                        'riser buildup': 'Tension before key moments',
+                                        'success chime': 'Achievements, completions',
+                                        'tech beep': 'UI interactions, data',
+                                        'typing sequence': 'Code/terminal scenes',
+                                        'ui click': 'Button presses, selections',
+                                        'whoosh transition': 'Scene changes, swipes'
+                                    };
+                                    return `
+                                        <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #ffc107;">
+                                            <div style="font-size: 0.85em; color: #856404; font-weight: bold;">• ${name}</div>
+                                            <div style="font-size: 0.8em; color: #999;">${contexts[name] || 'General purpose'}</div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">🎯 Audio Mixing Strategy</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8; color: #666;">
+                            <li><strong>Music Tracks:</strong> -18dB to -22dB under dialogue, fade in/out over 2 seconds</li>
+                            <li><strong>Ambient Layers:</strong> -25dB constant bed, use 2-3 overlapping for depth</li>
+                            <li><strong>Sound Effects:</strong> -12dB to -16dB, precise timing to visual cues</li>
+                            <li><strong>Transitions:</strong> Use whoosh SFX with every chapter change</li>
+                            <li><strong>Emphasis:</strong> Impact/success SFX on key reveals (diagrams, statistics)</li>
+                        </ul>
+                    </div>
+                `,
+                subtitles: `
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">💬 Subtitle Files (${artifacts.subtitles.length} files)</h3>
+                        ${artifacts.subtitles.map(file => `
+                            <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 2px solid #e0e0e0;">
+                                <div style="font-weight: bold; color: #667eea; margin-bottom: 8px; font-size: 1.1em;">📄 ${file}</div>
+                                <div style="font-size: 0.9em; color: #666; line-height: 1.6;">
+                                    ${file === 'source_subtitle.srt' ? 
+                                        '<strong>Primary subtitle track:</strong> Full transcript with timestamps<br>• Synced to A-roll narration<br>• Includes punctuation and formatting<br>• Ready for timeline import' :
+                                        '<strong>Alternative track:</strong> Color-coded subtitle version<br>• Green: A-roll dialogue<br>• Red: Screen capture descriptions<br>• Blue: Memory palace scene references'
+                                    }
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3; margin-bottom: 20px;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">🎯 Subtitle Implementation</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8; color: #666;">
+                            <li>Import SRT file to dedicated subtitle track</li>
+                            <li>Verify sync accuracy at chapter boundaries</li>
+                            <li>Adjust timing for B-roll overlays (don't cover key visuals)</li>
+                            <li>Apply consistent styling: Font Arial, Size 48px, White with black outline</li>
+                            <li>Position lower third (safe zone: 10% from bottom)</li>
+                            <li>Add fade in/out transitions (0.2 seconds) for smoother appearance</li>
+                        </ul>
+                    </div>
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                        <h4 style="color: #856404; margin-bottom: 10px;">⚙️ Export Settings</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8; color: #666;">
+                            <li><strong>Burn-in:</strong> For social media platforms (hardcoded)</li>
+                            <li><strong>External SRT:</strong> For YouTube, Vimeo (separate file upload)</li>
+                            <li><strong>Embedded:</strong> For professional delivery (burned into video container)</li>
+                        </ul>
+                    </div>
+                `,
+                transitions: `
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 20px;">✨ Transition Categories</h3>
+                        
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 8px; margin-bottom: 15px; color: white;">
+                            <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 10px;">🎬 Chapter Transitions (15 transitions needed)</div>
+                            <div style="font-size: 0.95em; opacity: 0.9; line-height: 1.6;">
+                                • <strong>Effect:</strong> Dramatic cross-dissolve + zoom out (2 seconds)<br>
+                                • <strong>Timing:</strong> Between each of 15 chapters<br>
+                                • <strong>Overlay:</strong> Chapter marker graphic fades in during transition<br>
+                                • <strong>Audio:</strong> Whoosh SFX + music swell
+                            </div>
+                        </div>
+
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="font-weight: bold; color: #1976d2; font-size: 1.1em; margin-bottom: 10px;">🎥 B-Roll Transitions (30-40 cuts estimated)</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.6;">
+                                • <strong>Standard cuts:</strong> Clean straight cuts (most common)<br>
+                                • <strong>J-cuts:</strong> Audio leads video by 0.5s (dialogue over B-roll)<br>
+                                • <strong>L-cuts:</strong> Video leads audio by 0.5s (B-roll extends into next narration)<br>
+                                • <strong>Quick dissolve:</strong> 0.5s cross-dissolve for related content
+                            </div>
+                        </div>
+
+                        <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="font-weight: bold; color: #2e7d32; font-size: 1.1em; margin-bottom: 10px;">🖼️ Animation Transitions</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.6;">
+                                • <strong>Manim animations:</strong> Fade from black (1s in), fade to next (0.5s out)<br>
+                                • <strong>Remotion scenes:</strong> Built-in transitions (no additional needed)<br>
+                                • <strong>3D objects:</strong> Fade + scale in (1s), hold, fade + scale out (1s)
+                            </div>
+                        </div>
+
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <div style="font-weight: bold; color: #856404; font-size: 1.1em; margin-bottom: 10px;">📊 Graphic Overlays</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.6;">
+                                • <strong>Diagrams:</strong> Wipe from left (0.8s in), fade out (0.5s)<br>
+                                • <strong>Lower thirds:</strong> Slide from left (0.6s in), slide out right (0.6s)<br>
+                                • <strong>Logos:</strong> Pop in with scale (0.4s), pop out (0.4s)
+                            </div>
+                        </div>
+
+                        <div style="background: #fce4ec; padding: 15px; border-radius: 8px;">
+                            <div style="font-weight: bold; color: #c2185b; font-size: 1.1em; margin-bottom: 10px;">🎭 Special Moments</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.6;">
+                                • <strong>Opening:</strong> Fade from black (2s) + title reveal<br>
+                                • <strong>Finale:</strong> Slow dissolve to futuristic city (3s) + fade to black (2s)<br>
+                                • <strong>Key reveals:</strong> Flash transition (0.2s) with impact SFX
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">🎯 Transition Guidelines</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8; color: #666;">
+                            <li><strong>Purposeful:</strong> Every transition should enhance story flow</li>
+                            <li><strong>Consistent:</strong> Use same transition types for similar content</li>
+                            <li><strong>Pacing:</strong> Faster cuts (0.5s) for energy, slower (2s+) for drama</li>
+                            <li><strong>Audio sync:</strong> Match every transition to music beat or SFX</li>
+                            <li><strong>Test playback:</strong> Ensure smooth rendering at 60fps</li>
+                        </ul>
+                    </div>
+                `,
+                colorcorrection: `
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 20px;">🎨 Color Grading Workflow</h3>
+                        
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #667eea;">
+                            <div style="font-weight: bold; color: #667eea; font-size: 1.1em; margin-bottom: 12px;">📹 A-Roll Footage</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.7;">
+                                <strong>File:</strong> Replay 2026-02-09-06-59.mp4<br>
+                                <strong>Primary Corrections:</strong><br>
+                                • White balance adjustment (may have cool/warm cast)<br>
+                                • Exposure normalization (consistent brightness)<br>
+                                • Contrast enhancement (lift shadows, reduce highlights)<br>
+                                • Saturation boost (+10% to +15%)<br>
+                                • Skin tone correction (maintain natural tones)<br>
+                                <strong>LUT:</strong> Consider warm cinematic look for tech content
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #2196f3;">
+                            <div style="font-weight: bold; color: #2196f3; font-size: 1.1em; margin-bottom: 12px;">🖥️ Screen Captures (11 files)</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.7;">
+                                <strong>Challenges:</strong> Varying screen brightness, UI color inconsistency<br>
+                                <strong>Corrections Needed:</strong><br>
+                                • Match brightness levels across all captures<br>
+                                • Reduce blue light cast from monitors<br>
+                                • Enhance UI contrast for readability<br>
+                                • Maintain code syntax highlighting colors<br>
+                                • Apply subtle vignette for focus
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #4caf50;">
+                            <div style="font-weight: bold; color: #4caf50; font-size: 1.1em; margin-bottom: 12px;">✨ Animations & Graphics</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.7;">
+                                <strong>Manim Animations (6 files):</strong> Already color-accurate, minimal correction<br>
+                                <strong>Remotion Scenes (16 files):</strong> Check for consistent palette across all scenes<br>
+                                <strong>3D Objects:</strong> Adjust lighting/shadows to match scene context<br>
+                                <strong>Backgrounds:</strong> Color match to adjacent footage for smooth compositing
+                            </div>
+                        </div>
+
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; color: white;">
+                            <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 12px;">🎬 Scene-Based Color Palettes</div>
+                            <div style="font-size: 0.9em; opacity: 0.95; line-height: 1.6;">
+                                <strong>Opening (Golden Mic):</strong> Warm golds, rich shadows<br>
+                                <strong>Technical Sections:</strong> Cool blues, crisp whites<br>
+                                <strong>Transformation Scenes:</strong> Purple/magenta gradients<br>
+                                <strong>LLM Comparison:</strong> Neutral, balanced colors<br>
+                                <strong>Finale (City):</strong> Futuristic teal/cyan tones
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">🎯 Color Correction Checklist</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8; color: #666;">
+                            <li>Apply corrections to adjustment layers, not individual clips</li>
+                            <li>Work in linear color space for accurate adjustments</li>
+                            <li>Use vectorscope to monitor skin tones (centered on line)</li>
+                            <li>Check for clipping in waveform (keep within 0-100 IRE)</li>
+                            <li>Match color temperature between A-roll and B-roll transitions</li>
+                            <li>Export color grading presets for consistency across future projects</li>
+                        </ul>
+                    </div>
+                `,
+                finalreview: `
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 20px;">
+                        <h3 style="color: #2c3e50; margin-bottom: 20px;">✅ Final Review Process</h3>
+                        
+                        <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #4caf50;">
+                            <div style="font-weight: bold; color: #2e7d32; font-size: 1.1em; margin-bottom: 12px;">📋 Technical Quality Pass</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.8;">
+                                ☐ Full video playback without stuttering<br>
+                                ☐ Audio sync verified at 0:00, middle, and end<br>
+                                ☐ No visual glitches or rendering artifacts<br>
+                                ☐ All B-roll properly placed (no gaps or overlaps)<br>
+                                ☐ Graphics render correctly (no missing elements)<br>
+                                ☐ Transitions smooth at 60fps playback<br>
+                                ☐ Subtitle timing accurate throughout<br>
+                                ☐ Color correction consistent across cuts
+                            </div>
+                        </div>
+
+                        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #2196f3;">
+                            <div style="font-weight: bold; color: #1976d2; font-size: 1.1em; margin-bottom: 12px;">🎵 Audio Quality Pass</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.8;">
+                                ☐ Dialogue clear and intelligible (no mumbling)<br>
+                                ☐ Background music level appropriate (-18dB to -22dB)<br>
+                                ☐ Sound effects timed precisely to visual cues<br>
+                                ☐ No audio clipping or distortion<br>
+                                ☐ Fade ins/outs smooth (no abrupt starts/stops)<br>
+                                ☐ Ambient layers add depth without mud<br>
+                                ☐ Overall loudness normalized (-14 LUFS for YouTube)<br>
+                                ☐ Stereo image balanced (no left/right bias)
+                            </div>
+                        </div>
+
+                        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107;">
+                            <div style="font-weight: bold; color: #856404; font-size: 1.1em; margin-bottom: 12px;">📊 Content & Pacing Pass</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.8;">
+                                ☐ Opening hook grabs attention (first 10 seconds)<br>
+                                ☐ Story flow makes sense (narrative arc intact)<br>
+                                ☐ Chapter transitions feel natural<br>
+                                ☐ B-roll enhances narration (not distracting)<br>
+                                ☐ Graphics/text readable at target resolution<br>
+                                ☐ No spelling errors in text overlays<br>
+                                ☐ Pacing maintains interest (not too slow/fast)<br>
+                                ☐ Finale delivers satisfying conclusion
+                            </div>
+                        </div>
+
+                        <div style="background: #fce4ec; padding: 20px; border-radius: 8px; border-left: 4px solid #e91e63;">
+                            <div style="font-weight: bold; color: #c2185b; font-size: 1.1em; margin-bottom: 12px;">🎬 Asset Verification</div>
+                            <div style="font-size: 0.95em; color: #666; line-height: 1.8;">
+                                ☐ All 11 screen captures used appropriately<br>
+                                ☐ All 22 animations integrated (6 Manim + 16 Remotion)<br>
+                                ☐ 3D objects placed for visual interest<br>
+                                ☐ 15 chapter markers at correct transitions<br>
+                                ☐ Diagrams appear during relevant explanations<br>
+                                ☐ Company logos used for attribution<br>
+                                ☐ Music tracks transition smoothly<br>
+                                ☐ Sound effects enhance without overwhelming
+                            </div>
+                        </div>
+
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; color: white;">
+                            <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 12px;">🚀 Export Settings</div>
+                            <div style="font-size: 0.9em; opacity: 0.95; line-height: 1.6;">
+                                <strong>Format:</strong> H.264 MP4<br>
+                                <strong>Resolution:</strong> 1920x1080 (Full HD)<br>
+                                <strong>Frame Rate:</strong> 60fps<br>
+                                <strong>Bitrate:</strong> 10-12 Mbps (for YouTube)<br>
+                                <strong>Audio:</strong> AAC 320kbps stereo<br>
+                                <strong>Color Space:</strong> Rec. 709<br>
+                                <strong>Subtitles:</strong> Separate SRT file + burned-in version
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">🎯 Final Deliverables</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8; color: #666;">
+                            <li><strong>Master file:</strong> Highest quality export for archival</li>
+                            <li><strong>YouTube version:</strong> Optimized for web streaming</li>
+                            <li><strong>Social media cuts:</strong> 60s/30s/15s versions for promotion</li>
+                            <li><strong>Subtitle files:</strong> SRT in multiple languages if needed</li>
+                            <li><strong>Thumbnail:</strong> Eye-catching 1280x720 frame export</li>
+                            <li><strong>Project archive:</strong> Save project file with all assets organized</li>
+                        </ul>
+                    </div>
+                `
+            };
+
+            return contentMap[taskType] || '<p style="color: #999;">Select a task category to view available options.</p>';
+        }
+
+        // Get quality checklist for task type
+        function getQualityChecklist(taskType) {
+            const checklists = {
+                transcript: [
+                    'All dialogue is properly transcribed',
+                    'Filler words marked for removal',
+                    'Key sections highlighted',
+                    'Pacing notes added'
+                ],
+                broll: [
+                    'B-roll matches narration content',
+                    'Smooth transitions in/out',
+                    'No distracting elements',
+                    'Proper duration (not too long/short)',
+                    'Color matches main footage'
+                ],
+                graphics: [
+                    'Text is readable at target resolution',
+                    'Consistent font usage',
+                    'Proper contrast and colors',
+                    'Animations are smooth',
+                    'No spelling errors'
+                ],
+                music: [
+                    'Music complements mood',
+                    'Audio levels balanced',
+                    'No copyright issues',
+                    'Smooth fade in/out',
+                    'Doesn\'t overpower dialogue'
+                ],
+                subtitles: [
+                    'Synced with audio perfectly',
+                    'Proper reading speed',
+                    'Correct spelling and grammar',
+                    'Consistent styling',
+                    'Line breaks make sense'
+                ],
+                transitions: [
+                    'Transitions serve a purpose',
+                    'Not overused',
+                    'Timing feels natural',
+                    'Matches video style',
+                    'Renders without glitches'
+                ],
+                colorcorrection: [
+                    'Consistent color across scenes',
+                    'Proper exposure',
+                    'Skin tones look natural',
+                    'No clipping in highlights/shadows',
+                    'Matches intended mood'
+                ],
+                finalreview: [
+                    'Watched full video start to finish',
+                    'Audio levels consistent throughout',
+                    'No visual glitches',
+                    'Pacing feels right',
+                    'All edits are intentional',
+                    'Export settings verified'
+                ]
+            };
+
+            return checklists[taskType].map((item, index) => `
+                <div class="quality-item">
+                    <input type="checkbox" id="quality-${taskType}-${index}">
+                    <label for="quality-${taskType}-${index}">${item}</label>
+                </div>
+            `).join('');
+        }
+
+        // Open artifact browser modal
+        function openArtifactBrowser() {
+            const modal = document.getElementById('artifactModal');
+            modal.style.display = 'block';
+            
+            // Populate artifact lists
+            populateArtifactList('broll-list', artifacts.broll);
+            populateArtifactList('animations-list', artifacts.animations);
+            populateArtifactList('graphics3d-list', artifacts.graphics_3d);
+            populateArtifactList('anime-list', artifacts.graphics_anime);
+            populateArtifactList('backgrounds-list', artifacts.graphics_backgrounds);
+            populateArtifactList('chapters-list', artifacts.graphics_chapters);
+            populateArtifactList('diagrams-list', artifacts.graphics_diagrams);
+            populateArtifactList('logos-list', artifacts.graphics_logos);
+            populateArtifactList('music-list', artifacts.music_tracks);
+            populateArtifactList('sfx-list', artifacts.sound_effects);
+            populateArtifactList('subtitles-list', artifacts.subtitles);
+        }
+
+        // Close artifact browser modal
+        function closeArtifactBrowser() {
+            document.getElementById('artifactModal').style.display = 'none';
+        }
+
+        // Populate artifact list in modal
+        function populateArtifactList(containerId, fileList) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = fileList.map(file => `
+                <div class="artifact-card">
+                    <div style="font-weight: bold; color: #667eea; margin-bottom: 5px; word-break: break-word;">
+                        📄 ${file}
+                    </div>
+                    <div style="font-size: 0.85em; color: #999;">
+                        ${getFileExtension(file).toUpperCase()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get file extension
+        function getFileExtension(filename) {
+            return filename.split('.').pop();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('artifactModal');
+            if (event.target == modal) {
+                closeArtifactBrowser();
+            }
+        }
+    </script>
+</body>
+</html>
