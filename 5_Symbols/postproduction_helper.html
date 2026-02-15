@@ -401,6 +401,7 @@
             <button class="nav-tab" onclick="switchTab('graphics')">🎨 Graphics</button>
             <button class="nav-tab" onclick="switchTab('search')">🔍 Smart Search</button>
             <button class="nav-tab" onclick="switchTab('checklist')">✅ Checklist</button>
+            <button class="nav-tab" onclick="switchTab('formula')">🧮 Formula</button>
         </div>
 
         <!-- Overview Tab -->
@@ -897,6 +898,111 @@
                     <input type="checkbox" id="post5">
                     <label for="post5">Include chapter markers in timeline</label>
                 </div>
+            </div>
+        </div>
+
+        <!-- Formula Tab -->
+        <div id="formula" class="tab-content">
+            <h2 style="margin-bottom: 20px;">Sunday Post-Production Workflow Formula</h2>
+            <p style="color: #7f8c8d; margin-bottom: 20px;">Step-by-step formula for efficient Sunday post-production process</p>
+
+            <div class="formula-section">
+                <h3>Phase 1: Timeline Preparation ✅ (Current Status)</h3>
+                <div class="checklist-container">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="prep1" checked disabled>
+                        <label for="prep1">A-roll and screencaptures landed on timeline</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="prep2" checked disabled>
+                        <label for="prep2">Gap words removed from timeline</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="prep3" checked disabled>
+                        <label for="prep3">No artifacts detected in footage</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="prep4">
+                        <label for="prep4">Timeline ready for artifact placement</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formula-section">
+                <h3>Phase 2: Artifact Placement</h3>
+                <div class="checklist-container">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="place1">
+                        <label for="place1">Place B-roll footage in appropriate scenes</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="place2">
+                        <label for="place2">Add graphics and overlays to timeline</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="place3">
+                        <label for="place3">Integrate lower thirds and title cards</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="place4">
+                        <label for="place4">Add chapter markers at scene breaks</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formula-section">
+                <h3>Phase 3: Audio & Effects</h3>
+                <div class="checklist-container">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="audio1">
+                        <label for="audio1">Balance audio levels across all tracks</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="audio2">
+                        <label for="audio2">Add background music and sound effects</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="audio3">
+                        <label for="audio3">Apply color correction and grading</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="audio4">
+                        <label for="audio4">Add transitions between scenes</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="formula-section">
+                <h3>Phase 4: Quality Control & Export</h3>
+                <div class="checklist-container">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="qc1">
+                        <label for="qc1">Review timeline for continuity issues</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="qc2">
+                        <label for="qc2">Check audio sync and levels</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="qc3">
+                        <label for="qc3">Verify all graphics are properly placed</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="qc4">
+                        <label for="qc4">Export final video in required formats</label>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">Sunday Workflow Tips</h3>
+                <ul style="color: #555; line-height: 1.6;">
+                    <li><strong>Start Early:</strong> Begin placement process immediately after timeline prep</li>
+                    <li><strong>Work Systematically:</strong> Complete one scene's artifacts before moving to next</li>
+                    <li><strong>Save Frequently:</strong> Auto-save enabled, but manual saves every 15 minutes</li>
+                    <li><strong>Reference Materials:</strong> Use the Timeline View tab to see scene requirements</li>
+                    <li><strong>Quality First:</strong> Don't rush placement - accuracy over speed</li>
+                </ul>
             </div>
         </div>
     </div>
