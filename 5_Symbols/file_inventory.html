@@ -320,14 +320,7 @@
             </div>
         </div>
 
-        <nav class="top-nav">
-            <a href="../index.html">🏠 Home</a>
-            <a href="timeline.html">⏱️ Timeline View</a>
-            <a href="postproduction_helper.html">🔍 Post-Production Helper</a>
-            <a href="video_editing_plan_ready.html">📋 Video Editing Plan</a>
-            <a href="file_inventory.html" class="active">📁 File Inventory</a>
-            <a href="markdown_renderer.html">📝 Markdown Viewer</a>
-        </nav>
+        <div id="nav-container"></div>
 
         <nav class="nav-bar">
             <button class="nav-btn active" onclick="showTab('overview')">Overview</button>
@@ -953,6 +946,16 @@
     }
 
     init();
+    </script>
+
+    <script>
+        fetch('nav_5symbols.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('nav-container').innerHTML = data;
+            // Set active
+            document.querySelector('a[href="file_inventory.html"]').classList.add('active');
+        });
     </script>
 </body>
 </html>

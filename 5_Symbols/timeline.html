@@ -291,14 +291,7 @@
     </style>
 </head>
 <body>
-    <nav class="top-nav">
-        <a href="../index.html">🏠 Home</a>
-        <a href="timeline.html" class="active">⏱️ Timeline View</a>
-        <a href="postproduction_helper.html">🔍 Post-Production Helper</a>
-        <a href="video_editing_plan_ready.html">📋 Video Editing Plan</a>
-        <a href="file_inventory.html">📁 File Inventory</a>
-        <a href="markdown_renderer.html">📝 Markdown Viewer</a>
-    </nav>
+    <div id="nav-container"></div>
 
     <div class="header">
         <h1>🎬 Video Production Timeline</h1>
@@ -931,6 +924,16 @@
         });
 
         timelineContainer.style.cursor = 'grab';
+    </script>
+
+    <script>
+        fetch('nav_5symbols.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('nav-container').innerHTML = data;
+            // Set active
+            document.querySelector('a[href="timeline.html"]').classList.add('active');
+        });
     </script>
 </body>
 </html>

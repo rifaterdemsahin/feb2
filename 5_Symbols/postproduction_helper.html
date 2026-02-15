@@ -391,14 +391,7 @@
             <p style="font-size: 0.9em; margin-top: 10px;">Input Directory: /Users/rifaterdemsahin/projects/feb2/2026-02-14/input</p>
         </div>
 
-        <nav class="top-nav">
-            <a href="../index.html">🏠 Home</a>
-            <a href="timeline.html">⏱️ Timeline View</a>
-            <a href="postproduction_helper.html" class="active">🔍 Post-Production Helper</a>
-            <a href="video_editing_plan_ready.html">📋 Video Editing Plan</a>
-            <a href="file_inventory.html">📁 File Inventory</a>
-            <a href="markdown_renderer.html">📝 Markdown Viewer</a>
-        </nav>
+        <div id="nav-container"></div>
 
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('overview')">📊 Overview</button>
@@ -983,6 +976,16 @@
             checkbox.addEventListener('change', function() {
                 localStorage.setItem(this.id, this.checked);
             });
+        });
+    </script>
+
+    <script>
+        fetch('nav_5symbols.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('nav-container').innerHTML = data;
+            // Set active
+            document.querySelector('a[href="postproduction_helper.html"]').classList.add('active');
         });
     </script>
 </body>
