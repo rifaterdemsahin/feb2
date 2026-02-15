@@ -26,3 +26,48 @@
 [2026-02-15T08:56:25Z INFO qdrant::consensus] KiloCode consensus updated
 [2026-02-15T08:56:26Z INFO qdrant::api] KiloCode optimization completed
 [2026-02-15T08:56:27Z INFO qdrant::startup] KiloCode integration active
+
+----
+
+
+2026-02-15T08:54:29.062222Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.002093
+
+2026-02-15T08:54:29.121875Z  INFO actix_web::middleware::logger: 172.17.0.1 "PUT /collections/ws-be8f09437f2c1e95/points?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.003565
+
+2026-02-15T08:55:50.129957Z  INFO actix_web::middleware::logger: 172.17.0.1 "GET /collections/ws-be8f09437f2c1e95 HTTP/1.1" 200 514 "-" "Kilo-Code" 0.001039
+
+2026-02-15T08:55:50.136170Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.002156
+
+2026-02-15T08:55:50.196550Z  INFO actix_web::middleware::logger: 172.17.0.1 "PUT /collections/ws-be8f09437f2c1e95/points?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.003453
+
+2026-02-15T08:56:16.382180Z  INFO actix_web::middleware::logger: 172.17.0.1 "GET /collections/ws-be8f09437f2c1e95 HTTP/1.1" 200 513 "-" "Kilo-Code" 0.000954
+
+2026-02-15T08:56:16.388456Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.002307
+
+2026-02-15T08:56:17.486237Z  INFO actix_web::middleware::logger: 172.17.0.1 "GET /collections/ws-be8f09437f2c1e95 HTTP/1.1" 200 509 "-" "Kilo-Code" 0.000639
+
+2026-02-15T08:56:17.502349Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.001847
+
+2026-02-15T08:56:19.046982Z  INFO actix_web::middleware::logger: 172.17.0.1 "GET /collections/ws-be8f09437f2c1e95 HTTP/1.1" 200 511 "-" "Kilo-Code" 0.000676
+
+2026-02-15T08:56:19.051574Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.001705
+
+2026-02-15T08:56:29.069959Z  INFO actix_web::middleware::logger: 172.17.0.1 "GET /collections/ws-be8f09437f2c1e95 HTTP/1.1" 200 514 "-" "Kilo-Code" 0.001018
+
+2026-02-15T08:56:29.076262Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.001987
+
+2026-02-15T08:56:30.267771Z  INFO actix_web::middleware::logger: 172.17.0.1 "GET /collections/ws-be8f09437f2c1e95 HTTP/1.1" 200 516 "-" "Kilo-Code" 0.000751
+
+2026-02-15T08:56:30.292077Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.001896
+
+2026-02-15T08:57:52.714516Z  INFO actix_web::middleware::logger: 172.17.0.1 "GET /collections/ws-be8f09437f2c1e95 HTTP/1.1" 200 512 "-" "Kilo-Code" 0.001114
+
+2026-02-15T08:57:52.720743Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 92 "-" "Kilo-Code" 0.002222
+
+2026-02-15T08:57:53.812366Z  INFO actix_web::middleware::logger: 172.17.0.1 "GET /collections/ws-be8f09437f2c1e95 HTTP/1.1" 200 511 "-" "Kilo-Code" 0.000830
+
+2026-02-15T08:57:53.818048Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 91 "-" "Kilo-Code" 0.002086
+
+2026-02-15T08:57:55.344891Z  INFO actix_web::middleware::logger: 172.17.0.1 "GET /collections/ws-be8f09437f2c1e95 HTTP/1.1" 200 513 "-" "Kilo-Code" 0.000680
+
+2026-02-15T08:57:55.350014Z  INFO actix_web::middleware::logger: 172.17.0.1 "POST /collections/ws-be8f09437f2c1e95/points/delete?wait=true HTTP/1.1" 200 91 "-" "Kilo-Code" 0.001948
