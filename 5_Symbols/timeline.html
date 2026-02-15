@@ -391,26 +391,35 @@
 
                     <div class="artifact-card video-aroll above" data-type="video">
                         <div class="artifact-name">
-                            <span class="artifact-emoji">🎥</span>
-                            A-Roll Footage
-                            <span class="artifact-count">1</span>
+                            <div style="display: flex; align-items: center;">
+                                <span class="artifact-emoji">🎥</span>
+                                A-Roll Footage
+                                <span class="artifact-count">1</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyToClipboard('A-Roll Footage')" title="Copy filename">📋</button>
                         </div>
                         <div class="artifact-type">Video - Primary</div>
                     </div>
 
                     <div class="artifact-card graphics" data-type="graphics">
                         <div class="artifact-name">
-                            <span class="artifact-emoji">🎨</span>
-                            Golden Mic 3D
-                            <span class="artifact-count">3</span>
+                            <div style="display: flex; align-items: center;">
+                                <span class="artifact-emoji">🎨</span>
+                                Golden Mic 3D
+                                <span class="artifact-count">3</span>
+                            </div>
+                            <button class="copy-btn" onclick="copyToClipboard('Golden Mic 3D')" title="Copy filename">📋</button>
                         </div>
                         <div class="artifact-type">Graphics - 3D Object</div>
                     </div>
 
                     <div class="artifact-card graphics" data-type="graphics">
                         <div class="artifact-name">
-                            <span class="artifact-emoji">🖼️</span>
-                            Anime Frame 1
+                            <div style="display: flex; align-items: center;">
+                                <span class="artifact-emoji">🖼️</span>
+                                Anime Frame 1
+                            </div>
+                            <button class="copy-btn" onclick="copyToClipboard('Anime Frame 1')" title="Copy filename">📋</button>
                         </div>
                         <div class="artifact-type">Graphics - Background</div>
                     </div>
@@ -971,6 +980,35 @@
         });
 
         timelineContainer.style.cursor = 'grab';
+
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 1000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 1000);
+            });
+        }
     </script>
 
     <script>
