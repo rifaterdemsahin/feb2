@@ -1101,17 +1101,35 @@
             resultsDiv.innerHTML = html;
         }
 
-        // Save checklist state to localStorage
+        // Cookie functions for checklist persistence
+        function setCookie(name, value, days = 30) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+            document.cookie = name + '=' + value + ';expires=' + expires.toUTCString() + ';path=/';
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + '=';
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Save checklist state to cookies
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
             // Load saved state
-            const saved = localStorage.getItem(checkbox.id);
+            const saved = getCookie(checkbox.id);
             if (saved === 'true') {
                 checkbox.checked = true;
             }
 
             // Save state on change
             checkbox.addEventListener('change', function() {
-                localStorage.setItem(this.id, this.checked);
+                setCookie(this.id, this.checked);
             });
         });
     </script>
