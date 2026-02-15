@@ -960,19 +960,38 @@
             setTimeout(() => toast.remove(), 2000);
         }
 
+        // Filename mapping for artifacts
+        const filenameMap = {
+            'A-Roll Footage': '01_Video_Footage/A-Roll/Replay 2026-02-09-06-59.mp4',
+            'Golden Mic 3D': '03_Graphics/Lower_Thirds/000_3d_golden_microphone_20260213_v1_texture.png',
+            'Anime Frame 1': '03_Graphics/Lower_Thirds/001_anime_frame_1_opening_the_heavy_mic_20260213_v1.png',
+            'Opening Theme': '02_Audio/Music/track_01_opening_theme.wav',
+            'Pivot Compass 3D': '03_Graphics/Lower_Thirds/000_3d_compass_pivot_20260213_v1_texture.png',
+            'Anime Frame 2': '03_Graphics/Lower_Thirds/002_anime_frame_2_the_pivot_20260213_v1.png',
+            '240 Workflows': 'Graphics diagram file', // Need to find actual
+            'Static vs Dynamic': '06_PostProduction_Assets/Manim_Animations/output/videos/video_animations/1080p60/StaticVsDynamicAnimation.mp4',
+            'Mercury Figure 3D': '03_Graphics/Lower_Thirds/000_3d_mercury_liquid_figure_20260213_v1_texture.png',
+            'Anime Frame 3': '03_Graphics/Lower_Thirds/003_anime_frame_3_statues_vs_mercury_20260213_v1.png',
+            'Transformation': '02_Audio/Music/track_02_transformation.wav',
+            'Screen Captures': '01_Video_Footage/Screen_Capture/screencapture10+Replay 2026-02-09-19-56.mp4', // One example
+            'Git Clone Anim': '06_PostProduction_Assets/Manim_Animations/output/videos/video_animations/1080p60/GitCloneAnimation.mp4',
+            'Anime Frame 4': '03_Graphics/Lower_Thirds/004_anime_frame_4_the_clone_lab_20260213_v1.png'
+        };
+
         // Copy to clipboard
         function copyToClipboard(text, e) {
             e.stopPropagation();
-            navigator.clipboard.writeText(text).then(function() {
-                showToast(text + '\nFilename: ' + text);
+            const filename = filenameMap[text] || text;
+            navigator.clipboard.writeText(filename).then(function() {
+                showToast(text + '\nFilename: ' + filename);
             }).catch(function() {
                 const textArea = document.createElement('textarea');
-                textArea.value = text;
+                textArea.value = filename;
                 document.body.appendChild(textArea);
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showToast(text + '\nFilename: ' + text);
+                showToast(text + '\nFilename: ' + filename);
             });
         }
 
