@@ -1,11 +1,11 @@
-# 6_Semblance - Error Logs and Solutions
+# 🐛 6_Semblance - Error Logs and Solutions
 
-## Purpose
+## 🎯 Purpose
 Documents common issues, their causes, and solutions. Includes debugging tips and workarounds for browser compatibility.
 
-## Common Errors
+## 🚨 Common Errors
 
-### Error 1: File Reading Failed
+### ❌ Error 1: File Reading Failed
 **Symptom**: Unable to read uploaded file
 **Cause**: File API not supported or incorrect file handle
 **Solution**:
@@ -28,7 +28,7 @@ reader.onerror = (e) => {
 reader.readAsText(file);
 ```
 
-### Error 2: Invalid Timestamp Format
+### ⏰ Error 2: Invalid Timestamp Format
 **Symptom**: Chapter markers not parsing correctly
 **Cause**: Inconsistent timestamp formats (HH:MM:SS vs MM:SS)
 **Solution**:
@@ -42,7 +42,7 @@ function normalizeTimestamp(ts) {
 }
 ```
 
-### Error 3: YAML Parse Error
+### 📄 Error 3: YAML Parse Error
 **Symptom**: "Unexpected token" when parsing YAML
 **Cause**: Indentation errors or special characters
 **Solution**:
@@ -59,7 +59,7 @@ try {
 }
 ```
 
-### Error 4: PrismJS Not Highlighting
+### 🌈 Error 4: PrismJS Not Highlighting
 **Symptom**: Code appears as plain text
 **Cause**: Language component not loaded or incorrect class name
 **Solution**:
@@ -77,7 +77,7 @@ key: value
 <script>Prism.highlightAll();</script>
 ```
 
-### Error 5: Cross-Origin Issues
+### 🌐 Error 5: Cross-Origin Issues
 **Symptom**: Cannot load external resources
 **Cause**: CORS policy restrictions
 **Solution**:

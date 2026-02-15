@@ -1,35 +1,35 @@
-# 5_Symbols - Core Source Code
+# 🔣 5_Symbols - Core Source Code
 
-## Purpose
+## 🎯 Purpose
 Contains the main application files and source code.
 
-## File Organization
+## 📁 File Organization
 
-### HTML Files
+### 🌐 HTML Files
 - `postproduction_helper.html` - Main application interface
 - `index.html` - Project landing page
 
-### JavaScript Modules (To Be Created)
+### 📜 JavaScript Modules (To Be Created)
 - `fileParser.js` - Parse various input formats
 - `dataTransformer.js` - Transform data between formats
 - `uiController.js` - Handle UI interactions
 - `validator.js` - Validate data integrity
 - `exporter.js` - Export to various formats
 
-### CSS Stylesheets (To Be Created)
+### 🎨 CSS Stylesheets (To Be Created)
 - `main.css` - Core styles
 - `prism-theme.css` - Syntax highlighting theme
 - `responsive.css` - Mobile/tablet layouts
 
-## Code Conventions
+## 📏 Code Conventions
 
-### Naming
+### 🏷️ Naming
 - **Variables**: camelCase (`inputFile`, `chapterData`)
 - **Functions**: camelCase, verb-first (`parseChapters`, `validateTimestamp`)
 - **Classes**: PascalCase (`FileParser`, `DataExporter`)
 - **Constants**: UPPER_SNAKE_CASE (`MAX_FILE_SIZE`, `DEFAULT_FORMAT`)
 
-### File Structure
+### 🏗️ File Structure
 ```javascript
 // 1. Imports
 import { helper } from './utils.js';

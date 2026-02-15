@@ -10,25 +10,25 @@ This project implements a structured methodology for video post-production workf
 
 ## 7-Phase Methodology
 
-### [1_Real_Unknown](1_Real_Unknown/) - Objectives (OKRs)
+### ❓ [1_Real_Unknown](1_Real_Unknown/) - Objectives (OKRs)
 Defines project objectives and key results. Start with the unknown problem: streamlining video post-production workflows.
 
-### [2_Environment](2_Environment/) - Roadmap and Use Cases
+### 🌍 [2_Environment](2_Environment/) - Roadmap and Use Cases
 Contains the project roadmap with development phases and detailed use cases for different user scenarios. Includes reference input files.
 
-### [3_Simulation](3_Simulation/) - UI Examples
+### 🎭 [3_Simulation](3_Simulation/) - UI Examples
 User interfaces and technologies used, including HTML5, CSS3, JavaScript, and PrismJS for syntax highlighting.
 
-### [4_Formula](4_Formula/) - Guides and Best Practices
+### ⚗️ [4_Formula](4_Formula/) - Guides and Best Practices
 Step-by-step formulas and guides built by GPT for parsing, transforming, and validating post-production data.
 
-### [5_Symbols](5_Symbols/) - Core Source Code
+### 🔣 [5_Symbols](5_Symbols/) - Core Source Code
 Contains the main application files including the post-production helper HTML application.
 
-### [6_Semblance](6_Semblance/) - Error Logs and Solutions
+### 🐛 [6_Semblance](6_Semblance/) - Error Logs and Solutions
 Documents common issues, their causes, and solutions. Includes debugging tips and browser compatibility notes.
 
-### [7_Testing_known](7_Testing_known/) - Validation
+### ✅ [7_Testing_known](7_Testing_known/) - Validation
 Contains test plans, validation procedures, and acceptance criteria. Tests reach from unknown problem back to known, validated solution.
 
 ## Quick Start
