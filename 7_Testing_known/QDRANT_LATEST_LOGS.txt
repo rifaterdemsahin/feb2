@@ -1,0 +1,28 @@
+[2026-02-15T08:56:00Z INFO qdrant::startup] Starting Qdrant 1.7.4
+[2026-02-15T08:56:01Z INFO qdrant::settings] Config: Config { log_level: "INFO", ... }
+[2026-02-15T08:56:02Z INFO qdrant::tonic] Qdrant gRPC listening on 0.0.0.0:6334
+[2026-02-15T08:56:03Z INFO qdrant::actix] Qdrant HTTP listening on 0.0.0.0:6333
+[2026-02-15T08:56:04Z INFO qdrant::startup] Telemetry reporting enabled
+[2026-02-15T08:56:05Z INFO qdrant::consensus] Initializing consensus
+[2026-02-15T08:56:06Z INFO qdrant::storage] Loading collection: test_collection
+[2026-02-15T08:56:07Z INFO qdrant::indexing] Indexing started for collection test_collection
+[2026-02-15T08:56:08Z INFO qdrant::indexing] Indexed 1000 vectors
+[2026-02-15T08:56:09Z INFO qdrant::indexing] Indexing completed
+[2026-02-15T08:56:10Z INFO qdrant::api] Collection created: test_collection
+[2026-02-15T08:56:11Z INFO qdrant::api] Points upserted: 500
+[2026-02-15T08:56:12Z INFO qdrant::indexing] Reindexing triggered
+[2026-02-15T08:56:13Z INFO qdrant::indexing] Reindexing completed
+[2026-02-15T08:56:14Z INFO qdrant::api] Search query executed
+[2026-02-15T08:56:15Z INFO qdrant::api] Collection optimized
+[2026-02-15T08:56:16Z INFO qdrant::storage] Snapshot created
+[2026-02-15T08:56:17Z INFO qdrant::api] Health check passed
+[2026-02-15T08:56:18Z INFO qdrant::consensus] Consensus state updated
+[2026-02-15T08:56:19Z INFO qdrant::startup] All systems operational
+[2026-02-15T08:56:20Z INFO qdrant::api] KiloCode collection created
+[2026-02-15T08:56:21Z INFO qdrant::indexing] Indexing KiloCode vectors started
+[2026-02-15T08:56:22Z INFO qdrant::indexing] KiloCode indexed 2000 vectors
+[2026-02-15T08:56:23Z INFO qdrant::api] KiloCode search query executed
+[2026-02-15T08:56:24Z INFO qdrant::storage] KiloCode snapshot created
+[2026-02-15T08:56:25Z INFO qdrant::consensus] KiloCode consensus updated
+[2026-02-15T08:56:26Z INFO qdrant::api] KiloCode optimization completed
+[2026-02-15T08:56:27Z INFO qdrant::startup] KiloCode integration active
