@@ -981,9 +981,10 @@
         // Copy to clipboard
         function copyToClipboard(text, e) {
             e.stopPropagation();
-            const filename = filenameMap[text] || text;
+            const fullPath = filenameMap[text] || text;
+            const filename = fullPath.split('/').pop(); // Get just the filename
             navigator.clipboard.writeText(filename).then(function() {
-                showToast(text + '\nFilename: ' + filename);
+                showToast(text + '\n' + fullPath);
             }).catch(function() {
                 const textArea = document.createElement('textarea');
                 textArea.value = filename;
@@ -991,7 +992,7 @@
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showToast(text + '\nFilename: ' + filename);
+                showToast(text + '\n' + fullPath);
             });
         }
 
