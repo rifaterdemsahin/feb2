@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Production Timeline - Artifact Placement</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+        }
+
+        .timeline-wrapper {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .timeline-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .filter-btn.active {
+            border-color: #007bff;
+            background: #007bff;
+            color: white;
+        }
+
+        .timeline-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .timeline {
+            position: relative;
+            display: flex;
+            min-width: max-content;
+            padding: 60px 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(to right,
+                #e74c3c 0%,
+                #3498db 20%,
+                #9b59b6 40%,
+                #27ae60 60%,
+                #f39c12 80%,
+                #1abc9c 100%);
+            transform: translateY(-50%);
+            border-radius: 3px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .artifact-group {
+            position: relative;
+            margin-right: 40px;
+            min-width: 180px;
+        }
+
+        .artifact-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-left: 5px solid;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .artifact-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .artifact-card.above {
+            margin-bottom: 80px;
+        }
+
+        .artifact-emoji {
+            font-size: 1.5em;
+            margin-right: 8px;
+        }
+
+        .artifact-name {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+        }
+
+        .artifact-type {
+            font-size: 0.75em;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .artifact-count {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            margin-left: auto;
+            font-weight: bold;
+        }
+
+        /* Color coding by category */
+        .video-aroll { border-color: #e74c3c; }
+        .video-screen { border-color: #3498db; }
+        .graphics { border-color: #9b59b6; }
+        .audio { border-color: #27ae60; }
+        .animation { border-color: #f39c12; }
+        .text { border-color: #1abc9c; }
+        .preproduction { border-color: #e67e22; }
+        .postproduction { border-color: #95a5a6; }
+
+        .timeline-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 4px solid;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .scene-label {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid rgba(0,0,0,0.2);
+        }
+
+        .scroll-hint {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .back-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Home</a>
+
+    <div class="header">
+        <h1>🎬 Video Production Timeline</h1>
+        <p>Interactive Artifact Placement Viewer</p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">478</div>
+                <div class="stat-label">Total Artifacts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">240</div>
+                <div class="stat-label">Graphics</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">142</div>
+                <div class="stat-label">Videos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">51</div>
+                <div class="stat-label">Audio Files</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Scenes</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline-wrapper">
+        <div class="timeline-controls">
+            <button class="filter-btn active" onclick="filterArtifacts('all')">🎯 All</button>
+            <button class="filter-btn" onclick="filterArtifacts('video')">🎥 Video</button>
+            <button class="filter-btn" onclick="filterArtifacts('graphics')">🎨 Graphics</button>
+            <button class="filter-btn" onclick="filterArtifacts('audio')">🎵 Audio</button>
+            <button class="filter-btn" onclick="filterArtifacts('animation')">✨ Animations</button>
+            <button class="filter-btn" onclick="filterArtifacts('text')">📝 Documents</button>
+        </div>
+
+        <div class="scroll-hint">← Scroll horizontally to explore all artifacts →</div>
+
+        <div class="timeline-container">
+            <div class="timeline">
+                <div class="timeline-line"></div>
+
+                <!-- Scene 1: Opening - The Heavy Mic -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 1: Heavy Mic</div>
+                    <div class="timeline-marker video-aroll" style="border-color: #e74c3c;"></div>
+
+                    <div class="artifact-card video-aroll above" data-type="video">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎥</span>
+                            A-Roll Footage
+                            <span class="artifact-count">1</span>
+                        </div>
+                        <div class="artifact-type">Video - Primary</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎨</span>
+                            Golden Mic 3D
+                            <span class="artifact-count">3</span>
+                        </div>
+                        <div class="artifact-type">Graphics - 3D Object</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 1
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎵</span>
+                            Opening Theme
+                        </div>
+                        <div class="artifact-type">Audio - Music</div>
+                    </div>
+                </div>
+
+                <!-- Scene 2: The Pivot -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 2: The Pivot</div>
+                    <div class="timeline-marker graphics" style="border-color: #9b59b6;"></div>
+
+                    <div class="artifact-card graphics above" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎨</span>
+                            Pivot Compass 3D
+                        </div>
+                        <div class="artifact-type">Graphics - 3D Object</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 2
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📊</span>
+                            240 Workflows
+                        </div>
+                        <div class="artifact-type">Graphics - Diagram</div>
+                    </div>
+                </div>
+
+                <!-- Scene 3: Static vs Dynamic -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 3: Static vs Dynamic</div>
+                    <div class="timeline-marker animation" style="border-color: #f39c12;"></div>
+
+                    <div class="artifact-card animation above" data-type="animation">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">✨</span>
+                            Static vs Dynamic
+                        </div>
+                        <div class="artifact-type">Animation - Video</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎨</span>
+                            Mercury Figure 3D
+                        </div>
+                        <div class="artifact-type">Graphics - 3D Object</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 3
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎵</span>
+                            Transformation
+                        </div>
+                        <div class="artifact-type">Audio - Music</div>
+                    </div>
+                </div>
+
+                <!-- Scene 4: The Clone Lab -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 4: Clone Lab</div>
+                    <div class="timeline-marker video-screen" style="border-color: #3498db;"></div>
+
+                    <div class="artifact-card video-screen above" data-type="video">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">💻</span>
+                            Screen Captures
+                            <span class="artifact-count">12</span>
+                        </div>
+                        <div class="artifact-type">Video - Screen Recording</div>
+                    </div>
+
+                    <div class="artifact-card animation" data-type="animation">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">✨</span>
+                            Git Clone Anim
+                        </div>
+                        <div class="artifact-type">Animation - Manim</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 4
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📊</span>
+                            Git Clone Diagram
+                        </div>
+                        <div class="artifact-type">Graphics - Diagram</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🔊</span>
+                            SFX Tech Beep
+                        </div>
+                        <div class="artifact-type">Audio - Sound Effect</div>
+                    </div>
+                </div>
+
+                <!-- Scene 5: The Evolution -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 5: Evolution</div>
+                    <div class="timeline-marker graphics" style="border-color: #9b59b6;"></div>
+
+                    <div class="artifact-card graphics above" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 5
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📊</span>
+                            Tool Evolution
+                        </div>
+                        <div class="artifact-type">Graphics - Timeline</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎵</span>
+                            Innovation Track
+                        </div>
+                        <div class="artifact-type">Audio - Music</div>
+                    </div>
+                </div>
+
+                <!-- Scene 6: The Nursery -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 6: Nursery</div>
+                    <div class="timeline-marker graphics" style="border-color: #9b59b6;"></div>
+
+                    <div class="artifact-card graphics above" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 6
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎵</span>
+                            Ambient Gentle
+                        </div>
+                        <div class="artifact-type">Audio - Music</div>
+                    </div>
+                </div>
+
+                <!-- Scene 7: Crystal Ball -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 7: Crystal Ball</div>
+                    <div class="timeline-marker graphics" style="border-color: #9b59b6;"></div>
+
+                    <div class="artifact-card graphics above" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 7
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📊</span>
+                            Tech Platform
+                        </div>
+                        <div class="artifact-type">Graphics - Comparison</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎵</span>
+                            Tech Ecosystem
+                        </div>
+                        <div class="artifact-type">Audio - Music</div>
+                    </div>
+                </div>
+
+                <!-- Scene 8: Engine Room -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 8: Engine Room</div>
+                    <div class="timeline-marker animation" style="border-color: #f39c12;"></div>
+
+                    <div class="artifact-card animation above" data-type="animation">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">✨</span>
+                            Speed Multiplier
+                        </div>
+                        <div class="artifact-type">Animation - Video</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 8
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📊</span>
+                            Speed Benchmark
+                        </div>
+                        <div class="artifact-type">Graphics - Chart</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🔊</span>
+                            SFX Whoosh
+                        </div>
+                        <div class="artifact-type">Audio - Sound Effect</div>
+                    </div>
+                </div>
+
+                <!-- Scene 9: Digital Feast -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 9: Digital Feast</div>
+                    <div class="timeline-marker animation" style="border-color: #f39c12;"></div>
+
+                    <div class="artifact-card animation above" data-type="animation">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">✨</span>
+                            LLM Feature Cards
+                        </div>
+                        <div class="artifact-type">Animation - Video</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎨</span>
+                            AI Brain 3D
+                        </div>
+                        <div class="artifact-type">Graphics - 3D Object</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 9
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📊</span>
+                            LLM Comparison
+                        </div>
+                        <div class="artifact-type">Graphics - Matrix</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎵</span>
+                            The Feast Track
+                        </div>
+                        <div class="artifact-type">Audio - Music</div>
+                    </div>
+                </div>
+
+                <!-- Scene 10: Power Station -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 10: Power Station</div>
+                    <div class="timeline-marker graphics" style="border-color: #9b59b6;"></div>
+
+                    <div class="artifact-card graphics above" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎨</span>
+                            Kill Switch 3D
+                        </div>
+                        <div class="artifact-type">Graphics - 3D Object</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 10
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📊</span>
+                            n8n Automation
+                        </div>
+                        <div class="artifact-type">Graphics - Flow Diagram</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🔊</span>
+                            SFX Impact Hit
+                        </div>
+                        <div class="artifact-type">Audio - Sound Effect</div>
+                    </div>
+                </div>
+
+                <!-- Scene 11: Tool Shed -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 11: Tool Shed</div>
+                    <div class="timeline-marker animation" style="border-color: #f39c12;"></div>
+
+                    <div class="artifact-card animation above" data-type="animation">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">✨</span>
+                            CI/CD Pipeline
+                        </div>
+                        <div class="artifact-type">Animation - Video</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎨</span>
+                            Rocket CI/CD 3D
+                        </div>
+                        <div class="artifact-type">Graphics - 3D Object</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 11
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📊</span>
+                            CI/CD Diagram
+                        </div>
+                        <div class="artifact-type">Graphics - Pipeline</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🔊</span>
+                            SFX Success
+                        </div>
+                        <div class="artifact-type">Audio - Sound Effect</div>
+                    </div>
+                </div>
+
+                <!-- Scene 12: The Balcony -->
+                <div class="artifact-group">
+                    <div class="scene-label">Scene 12: The Balcony</div>
+                    <div class="timeline-marker graphics" style="border-color: #9b59b6;"></div>
+
+                    <div class="artifact-card graphics above" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎨</span>
+                            Futuristic City 3D
+                        </div>
+                        <div class="artifact-type">Graphics - 3D Object</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🖼️</span>
+                            Anime Frame 12
+                        </div>
+                        <div class="artifact-type">Graphics - Background</div>
+                    </div>
+
+                    <div class="artifact-card graphics" data-type="graphics">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📊</span>
+                            Journey Roadmap
+                        </div>
+                        <div class="artifact-type">Graphics - Diagram</div>
+                    </div>
+
+                    <div class="artifact-card text" data-type="text">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📝</span>
+                            Subtitles SRT
+                        </div>
+                        <div class="artifact-type">Text - Subtitles</div>
+                    </div>
+
+                    <div class="artifact-card audio" data-type="audio">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">🎵</span>
+                            Closing Theme
+                        </div>
+                        <div class="artifact-type">Audio - Music</div>
+                    </div>
+                </div>
+
+                <!-- Additional Resources -->
+                <div class="artifact-group">
+                    <div class="scene-label">Resources</div>
+                    <div class="timeline-marker preproduction" style="border-color: #e67e22;"></div>
+
+                    <div class="artifact-card preproduction above" data-type="text">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📋</span>
+                            EDL / Scripts
+                        </div>
+                        <div class="artifact-type">PreProduction</div>
+                    </div>
+
+                    <div class="artifact-card preproduction" data-type="text">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">📝</span>
+                            Transcript
+                        </div>
+                        <div class="artifact-type">PreProduction</div>
+                    </div>
+
+                    <div class="artifact-card postproduction" data-type="text">
+                        <div class="artifact-name">
+                            <span class="artifact-emoji">⚙️</span>
+                            Post-Prod Assets
+                            <span class="artifact-count">50+</span>
+                        </div>
+                        <div class="artifact-type">PostProduction</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e74c3c;"></div>
+                <span>🎥 Video A-Roll</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #3498db;"></div>
+                <span>💻 Screen Capture</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9b59b6;"></div>
+                <span>🎨 Graphics</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #27ae60;"></div>
+                <span>🎵 Audio</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f39c12;"></div>
+                <span>✨ Animations</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #1abc9c;"></div>
+                <span>📝 Text/Docs</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e67e22;"></div>
+                <span>📋 PreProduction</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #95a5a6;"></div>
+                <span>⚙️ PostProduction</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterArtifacts(type) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // Show/hide artifact cards
+            const cards = document.querySelectorAll('.artifact-card');
+            cards.forEach(card => {
+                if (type === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    const cardType = card.getAttribute('data-type');
+                    if (cardType === type) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Add click handlers to artifact cards for details
+        document.querySelectorAll('.artifact-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const name = this.querySelector('.artifact-name').textContent.trim();
+                const type = this.querySelector('.artifact-type').textContent;
+                alert(`Artifact: ${name}\nType: ${type}`);
+            });
+        });
+
+        // Smooth scroll on timeline
+        const timelineContainer = document.querySelector('.timeline-container');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        timelineContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            timelineContainer.style.cursor = 'grabbing';
+            startX = e.pageX - timelineContainer.offsetLeft;
+            scrollLeft = timelineContainer.scrollLeft;
+        });
+
+        timelineContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+            timelineContainer.style.cursor = 'grab';
+        });
+
+        timelineContainer.addEventListener('mouseup', () => {
+            isDown = false;
+            timelineContainer.style.cursor = 'grab';
+        });
+
+        timelineContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - timelineContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            timelineContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        timelineContainer.style.cursor = 'grab';
+    </script>
+</body>
+</html>
