@@ -620,6 +620,28 @@
         <div id="broll" class="tab-content">
             <h2 style="margin-bottom: 20px;">B-Roll Footage Planning</h2>
 
+            <div class="formula-section">
+                <h3>🎥 B-Roll Placement Checklist</h3>
+                <div class="checklist-container">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="broll_download">
+                        <label for="broll_download">Download B-roll footage files</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="broll_extract">
+                        <label for="broll_extract">Extract footage from compressed archives</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="broll_import">
+                        <label for="broll_import">Import footage into DaVinci Resolve media bin</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="broll_organize">
+                        <label for="broll_organize">Organize footage by scene and type in bins</label>
+                    </div>
+                </div>
+            </div>
+
             <div class="search-bar">
                 <input type="text" id="brollSearch" placeholder="Search B-roll by keyword, scene, or type..." onkeyup="filterBRoll()">
                 <div class="filter-tags">
