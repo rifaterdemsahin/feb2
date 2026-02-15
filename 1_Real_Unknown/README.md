@@ -6,7 +6,7 @@ Defines project objectives and key results. Start with the unknown problem.
 ## 📽️ Project: Video Post Production Helper (Week 2, February 2026)
 
 ### ❓ The Unknown Problem
-How to streamline video post-production workflows to reduce manual effort and increase efficiency for content creator rifat erdem sahin
+How to streamline video post-production workflows to reduce manual effort and increase efficiency for content creator Rifat Erdem Sahin
 
 ### 🎯 Objectives
 1. 🤖 **Automate repetitive post-production tasks**
